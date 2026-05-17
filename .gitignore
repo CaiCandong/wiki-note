@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor / swap
+*~
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Local agent / IDE tooling (not part of notes)
+.cursor/
+.omc/
+.claude/settings.local.json
+
+# Secrets & local env (e.g.  credentials)
+.env
+.env.*
+!.env.example
+
+# Temp / logs from sync or local edits
+*.log
+*.tmp
+.cache/
