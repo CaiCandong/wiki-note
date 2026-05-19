@@ -26,7 +26,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 场景               | 命令                                                                                               |
 | ---------------- | ------------------------------------------------------------------------------------------------ |
 | 把内容拉到本地（重写本地）  | ` docs +fetch --api-version v2 --doc "<wiki-url-or-token>"` 后转写为 Markdown                 |
-| 把本地修改推回（覆盖整篇） | ` docs +update --api-version v2 --doc "<wiki-url-or-token>" --command overwrite --content-file <file>` |
+| 把本地修改推回（覆盖整篇） | ` docs +update --api-version v2 --doc "<wiki-url-or-token>" --command overwrite --doc-format markdown --content "@<file>.md"` |
+| 在「我的文档库」新建 Wiki 页 | ` wiki +node-create --space-id my_library --title "标题"`（拿到 `node_token` / `obj_token`） |
 | 仅追加段落            | ` docs +update --api-version v2 --doc "<wiki-url-or-token>" --command append --content '<p>...</p>'`   |
 | 局部精修（推荐 XML）     | ` docs +update --api-version v2 ... --command str_replace / block_insert_after / block_replace`       |
 
@@ -34,7 +35,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 1. **改 → 同步到本地**：`docs +fetch` 取最新 → 按本仓书写规范转成 Markdown → 覆写本地文件
 2. **改本地 → 同步到**：本地修订完成 → `docs +update` 推回 → 复核页面渲染
-3. **新增一篇笔记**：先 `docs +create --api-version v2` 在建文档拿到 wiki URL → 落地本地 `<slug>.md` → 写入 URL 与  → 更新 README
+3. **新增一篇笔记**：优先 `wiki +node-create --space-id my_library` 建 Wiki 页 → 落地本地 `<slug>.md` → blockquote 写入 ` 与 ``（即 `obj_token`）→ `docs +update` 推正文 → 更新 README
+
+### 认证：避免频繁 `auth login`
+
+**默认不需要每次同步都登录。** 用户身份 token 保存在本机 Keychain，access token 过期后由 CLI 用 refresh token 自动续期（` auth status` 可查看 `expiresAt` / `refreshExpiresAt`）。
+
+**Agent 遇到 API 失败时，按顺序处理，不要一上来就要求用户 `auth login`：**
+
+1. **先查状态**：` auth status`（或 `auth list`）。仅当 `tokenStatus` 非 `valid`，或报错 `need_user_authorization`、refresh 失败时，才需要重新授权。
+2. **区分权限 vs 登录**：`permission_violations` / 缺 scope → 增量授权 ` auth login --scope "<缺失的 scope>"`（多次 login 的 scope **会累积**，不必清空重登）。
+3. **执行环境**：在 Cursor / 沙箱中跑  可能无法读写 macOS Keychain（`keychain ... operation not permitted`），导致 refresh 失败并误报要登录。同步命令应使用**完整本机权限**（非受限沙箱）；OAuth 授权建议在用户**系统终端**完成一次即可。
+4. **不要擅自反复 login**：同一任务内若已 `valid`，禁止因单次网络抖动就重复发起 `auth login`。
+5. **refresh 过期**：`refreshExpiresAt` 之后（通常约 7 天量级，以 `auth status` 为准）才需用户重新 `auth login`；可指定 `--domain` 或 `--scope` 做最小范围授权。
+
+**用户侧减少登出频率：**
+
+- 日常同步前：` auth status`，有效则直接 `docs +fetch` / `docs +update`。
+- 新增能力（如首次用 Wiki / 邮箱）再用 `auth login --scope "..."` 补 scope，不要全量重登。
+- 避免频繁 `auth logout`；换机或撤销授权后才需完整登录。
 
 注意：
 
@@ -61,6 +80,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 选型类内容先给「快速选型」表，再展开理论
 - 关键技术名词保留英文原文：`TTL`、`Cache-Aside`、`Loader`、`Write-Through`、`ZSET`、`lease` 等不翻译
 - 文件名使用小写连字符：`cache-strategies.md`、`redis-zset-delay-queue.md`
+- 同一主题的系列笔记可放在子目录（如 `rabbitmq/`），路径为 `rabbitmq/<slug>.md`；根 `README.md` 与系列内 `README.md` 分别维护总表与系列目录
 
 ## 编辑注意
 

@@ -210,3 +210,7 @@ ES Highlight 存在 CPU 高、长文本慢、中文易碎、synonym/fuzzy 易异
 8. Lucene 高亮源码
 
 掌握以上主题后，即可系统性地处理搜索引擎中的高亮工程问题。
+
+---
+
+**相关笔记**：[es-multilingual-search.md](./es-multilingual-search.md) — 指定语言下的索引拆分、`dis_max` 分层排序与 `highlight_query` 对齐（短剧标题 + 标签场景）。
