@@ -40,7 +40,7 @@
 | ---- | ---- |
 | 固定延迟（如 30min 关单） | TTL + DLX 回主队列，或 delayed 插件 |
 | 多级退避（1s/5s/30s） | 多条 TTL 队列 + DLX，或应用定时重发 |
-| 大量不同延迟点 | 评估 Redis ZSET、[redis-zset-delay-queue.md](../redis-zset-delay-queue.md) |
+| 大量不同延迟点 | 评估 Redis ZSET、[redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md) |
 | 严格优先级 | `x-max-priority` 队列（有限档数） |
 | 已用 Rabbit 生态 | delayed 插件（运维允许时） |
 
@@ -156,7 +156,8 @@ Exchange 类型 `x-delayed-message`，发布时带 header `x-delay`（毫秒）�
 
 ## 八、附录
 
-- Redis 实现：[redis-zset-delay-queue.md](../redis-zset-delay-queue.md)
+- Redis 实现：[redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md)
 - DLX 基础：[consumer-semantics.md](./consumer-semantics.md)
+- 选型总览：[messaging/README.md](../messaging/README.md)
 - [RabbitMQ — TTL](https://www.rabbitmq.com/docs/ttl)
 - [Delayed Message Plugin](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange)

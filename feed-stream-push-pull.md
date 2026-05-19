@@ -385,7 +385,13 @@ flowchart LR
 | Inbox / Outbox | 收件箱 / 发件箱，存内容索引 |
 | 写扩散 / 读扩散 | 推 / 拉的另一种说法 |
 
-### 6.2 延伸阅读
+### 6.2 相关笔记
+
+- [cache-strategies.md](./cache-strategies.md) — Timeline 热数据、Cache-Aside 与失效策略
+- [messaging/README.md](./messaging/README.md) — 扇出投递用 MQ；与 Redis / RabbitMQ 选型
+- [rabbitmq/core-concepts.md](./rabbitmq/core-concepts.md) — 异步扇出 Worker 的典型 Broker 模型
+
+### 6.3 延伸阅读
 
 - [Write-Time vs Read-Time Fan-Out](https://www.abstractalgorithms.dev/write-time-vs-read-time-fan-out)（英文，对比清晰）
 - [微博 feed 推拉与时间分区拉模式](https://cloud.tencent.com/developer/article/1526690)

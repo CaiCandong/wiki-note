@@ -536,6 +536,7 @@ PUT /dramas_en/_doc/d123_en
 ### 9.2 相关笔记
 
 - [es-highlight.md](./es-highlight.md) — Highlight 原理、三种 highlighter、`highlight_query`
+- [cache-strategies.md](../cache-strategies.md) — 热词与列表缓存（若搜索层前有 CDN/Redis）
 
 ### 9.3 外部链接
 

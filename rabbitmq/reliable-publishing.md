@@ -189,5 +189,6 @@ durable exchange + durable queue
 ## 八、附录
 
 - 消费侧可靠性：[consumer-semantics.md](./consumer-semantics.md)
+- 消息选型与 Outbox 横切：[messaging/README.md](../messaging/README.md)
 - [RabbitMQ — Publisher Confirms](https://www.rabbitmq.com/docs/confirms)
 - [RabbitMQ — Mandatory Flag](https://www.rabbitmq.com/docs/publishers#mandatory)

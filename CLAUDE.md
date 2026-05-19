@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 这是一个**个人技术笔记仓库**，没有源码、构建、测试。每个 `*.md` 是一篇独立笔记，**正本在 Wiki**，本地 `*.md` 是文档的同步副本。
 
-仓库当前**没有 commit、没有 remote**。不要主动执行 `git commit` / `git push`。
+本地副本纳入 **Git** 版本管理（`origin` 为 GitHub 备份）；**不要主动** `git commit` / `git push`，除非用户明确要求。
 
 ## 与文档的关联关系
 
@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 ```
 
-`README.md` 表格的最后一列也维护 URL。新增笔记时同步更新两处。
+`README.md` 表格的最后一列也维护 URL；**同时更新** [`docs/`](./docs/)（`path`、``、``、`series`、`status`）。提交前建议运行 `./scripts/`。
 
 ## 同步：必须用 
 
@@ -35,7 +35,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 1. **改 → 同步到本地**：`docs +fetch` 取最新 → 按本仓书写规范转成 Markdown → 覆写本地文件
 2. **改本地 → 同步到**：本地修订完成 → `docs +update` 推回 → 复核页面渲染
-3. **新增一篇笔记**：优先 `wiki +node-create --space-id my_library` 建 Wiki 页 → 落地本地 `<slug>.md` → blockquote 写入 ` 与 ``（即 `obj_token`）→ `docs +update` 推正文 → 更新 README
+3. **新增一篇笔记**：优先 `wiki +node-create --space-id my_library` 建 Wiki 页 → 落地本地 `<slug>.md`（系列文放在 `rabbitmq/`、`redis/`、`elasticsearch/` 等子目录）→ blockquote 写入 ` 与 ``（即 `obj_token`）→ `docs +update` 推正文 → 更新 README、`docs/`、系列内 `README.md`（如有）
+
+### 冲突与正本（避免 drift）
+
+| 规则 | 说明 |
+| ---- | ---- |
+| **单篇单源编辑** | 同一篇文档在同一轮改动中，只改或只改本地，不要两侧并行改 |
+| **默认正本** | 未特别声明时，以 **** 为准：已改 → `docs +fetch` 覆盖本地；本地已改 → `docs +update` 覆盖 |
+| **两侧都已改** | 先人工决定保留哪一侧，再用 fetch 或 overwrite 对齐另一侧；禁止手抄合并正文 |
+| **登记册** | `` 的 `` 必须与 blockquote 一致；`` 用于提交前校验 |
+| **临时文件** | `*.feishu-body.md` 为 fetch 中间产物，已 `.gitignore`，勿提交 |
+
+推送时在**仓库根目录**执行，`--content` 使用相对路径，例如 `@redis/redis-zset-delay-queue.md`、`@elasticsearch/es-highlight.md`。
 
 ### 认证：避免频繁 `auth login`
 
@@ -59,7 +71,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - v2 API 必须带 `--api-version v2`；不要用旧版本接口
 - 推回前，确认目标 doc 的 `` 与 blockquote 标注一致，避免误覆盖到别的文档
-- `+update` 是高风险写操作，遵循  的 `--yes` 确认协议；可先用 `--dry-run` 预览
+- `+update` 是高风险写操作；可先用 `--dry-run` 预览；`overwrite` 会清空正文
 - 同步前后，侧的画板 token（`<whiteboard token="...">`）会变化，本地 Markdown 用 ```` ```mermaid ```` 代码块承载图源，不保留 token
 
 ## 渲染目标：文档
@@ -79,11 +91,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 概念/策略小节统一模板：**定义 → 流程图 → 读写要点 → 优缺点 → 典型业务**
 - 选型类内容先给「快速选型」表，再展开理论
 - 关键技术名词保留英文原文：`TTL`、`Cache-Aside`、`Loader`、`Write-Through`、`ZSET`、`lease` 等不翻译
-- 文件名使用小写连字符：`cache-strategies.md`、`redis-zset-delay-queue.md`
-- 同一主题的系列笔记可放在子目录（如 `rabbitmq/`），路径为 `rabbitmq/<slug>.md`；根 `README.md` 与系列内 `README.md` 分别维护总表与系列目录
+- 文件名使用小写连字符：`cache-strategies.md`、`redis/redis-zset-delay-queue.md`
+- 系列子目录：`rabbitmq/`、`redis/`、`elasticsearch/`；每系列一个 `README.md`（阅读顺序 + 链接）
+- 跨系列选型与路径：[`messaging/README.md`](./messaging/README.md)（**仅本地索引**，无页）
+- 根 `README.md` 维护主题地图与总表；[`docs/`](./docs/) 维护 machine-readable 元数据
 
 ## 编辑注意
 
 - **本地 vs 是双向同步关系**，不是单向导出。任何一侧变更都要走  同步到另一侧，不要让两边 drift。
 - 不要引入构建工具、Lint、front matter、文档站脚手架（Hugo / Docusaurus 等）。
-- 新增 / 删除笔记后同步更新 `README.md` 表格。
+- 新增 / 删除 / 移动笔记后同步更新 `README.md`、`docs/`、系列 `README.md`；概念文末尾可加 **相关笔记** 互链。
+-  Wiki 目录树可与本地子目录**不同构**（可扁平，本地按主题分目录即可）。

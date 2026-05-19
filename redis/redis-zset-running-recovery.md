@@ -405,6 +405,11 @@ Redis Streams 已内建 pending list、`XPENDING`、`XCLAIM`、`XAUTOCLAIM`，�
 - **AWS SQS**：Visibility Timeout
 - **Temporal**：Activity Heartbeat
 
+### 相关笔记
+
+- [redis-zset-delay-queue.md](./redis-zset-delay-queue.md) — ZSET 延迟队列全貌
+- [messaging/README.md](../messaging/README.md) — 租约语义与 MQ 可见性超时对照
+
 ---
 
 ## 附：与 List 队列的对比（参考）

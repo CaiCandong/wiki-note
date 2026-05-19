@@ -381,4 +381,11 @@ sequenceDiagram
 
 ---
 
+## 七、相关笔记
+
+- [feed-stream-push-pull.md](./feed-stream-push-pull.md) — Timeline / Inbox 缓存、读多写少下的 Cache-Aside
+- [messaging/README.md](./messaging/README.md) — 缓存失效与 MQ 投递的配合（路径 A 学习顺序）
+
+---
+
 *— 文档结束 —*

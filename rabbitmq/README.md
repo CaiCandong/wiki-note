@@ -12,6 +12,8 @@
 
 **阅读顺序**：核心概念 → Exchange 路由 → 可靠投递 → 消费语义 → 延迟/优先级 → 集群 HA。
 
+**选型与路径**：与 Redis 延迟队列、Feed 扇出的对比见 [messaging/README.md](../messaging/README.md)。
+
 ## 文章目录
 
 | 序号 | 文件 | 主题 | 原文 |

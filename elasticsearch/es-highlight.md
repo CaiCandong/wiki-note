@@ -213,4 +213,7 @@ ES Highlight 存在 CPU 高、长文本慢、中文易碎、synonym/fuzzy 易异
 
 ---
 
-**相关笔记**：[es-multilingual-search.md](./es-multilingual-search.md) — 指定语言下的索引拆分、`dis_max` 分层排序与 `highlight_query` 对齐（短剧标题 + 标签场景）。
+## 相关笔记
+
+- [es-multilingual-search.md](./es-multilingual-search.md) — 按语言分索引、`dis_max`、`highlight_query` 对齐
+- [cache-strategies.md](../cache-strategies.md) — 搜索结果缓存与 Cache-Aside
