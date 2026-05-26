@@ -36,13 +36,17 @@ flowchart TB
     end
     subgraph product["业务架构"]
         FEED[feed-stream-push-pull]
+        PUSH[push-global-timezone-delivery]
     end
     CACHE --> REDIS
     CACHE --> FEED
     MSG --> REDIS
     MSG --> RMQ
     MSG --> FEED
+    MSG --> PUSH
     RMQ --> FEED
+    RMQ --> PUSH
+    REDIS --> PUSH
     ES --> FEED
 ```
 
@@ -54,6 +58,7 @@ flowchart TB
 | RabbitMQ | [rabbitmq/README.md](./rabbitmq/README.md) | AMQP 全系列（6 篇） |
 | Elasticsearch | [elasticsearch/README.md](./elasticsearch/README.md) | 高亮、多语言搜索 |
 | Feed 流 | [feed-stream-push-pull.md](./feed-stream-push-pull.md) | 推拉模式、Fan-out、Inbox/Outbox |
+| Push | [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) | 全球化 Push 概念：时区、人群、调度 |
 
 ---
 
@@ -63,6 +68,7 @@ flowchart TB
 | ---- | ---- |
 | **A · 后端通用** | cache-strategies → redis 系列 → rabbitmq 系列 1→6 |
 | **B · Feed / 社交** | feed-stream-push-pull → cache-strategies → rabbitmq/reliable-publishing |
+| **D · Push / 触达** | push-global-timezone-delivery → redis/redis-zset-delay-queue → rabbitmq/reliable-publishing |
 | **C · 搜索** | elasticsearch/es-highlight → es-multilingual-search |
 
 详细说明见 [messaging/README.md](./messaging/README.md)。
@@ -77,6 +83,7 @@ flowchart TB
 | ---- | ---- | -------- |
 | [cache-strategies.md](./cache-strategies.md) | 缓存策略：Cache-Aside / Read-Through / Write-Through 等 |  |
 | [feed-stream-push-pull.md](./feed-stream-push-pull.md) | Feed 流推拉、Fan-out、Inbox/Outbox |  |
+| [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) | 全球化 Push 概念介绍 |  |
 
 ### [elasticsearch/](./elasticsearch/) — Elasticsearch 系列
 

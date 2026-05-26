@@ -388,6 +388,7 @@ flowchart LR
 ### 6.2 相关笔记
 
 - [cache-strategies.md](./cache-strategies.md) — Timeline 热数据、Cache-Aside 与失效策略
+- [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) — 全球化 Push 概念（Fan-out 同类问题）
 - [messaging/README.md](./messaging/README.md) — 扇出投递用 MQ；与 Redis / RabbitMQ 选型
 - [rabbitmq/core-concepts.md](./rabbitmq/core-concepts.md) — 异步扇出 Worker 的典型 Broker 模型
 

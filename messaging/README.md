@@ -13,6 +13,7 @@
 | 微服务解耦、路由复杂、要 Confirm/ACK/DLX | RabbitMQ | [rabbitmq/README.md](../rabbitmq/README.md) |
 | 超高吞吐事件流、日志、回放、分区消费 | Kafka（本库暂无专篇，见各文对比表） | redis 延迟队列文末选型 |
 | 发帖扇出、Timeline 投递 | MQ 异步扇出 + 推拉混合 | [feed-stream-push-pull.md](../feed-stream-push-pull.md) |
+| 全球 Push、按用户本地时刻送达 | 概念：cohort × 时区触发；实现见 ZSET / MQ | [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) |
 | 业务写 DB 与发 MQ 的一致性 | Outbox 模式 | [rabbitmq/reliable-publishing.md](../rabbitmq/reliable-publishing.md) §7.3 |
 
 ```mermaid
@@ -23,6 +24,7 @@ flowchart TD
     Q2 -->|中低、已有 Redis| ZSET[Redis ZSET 队列]
     Q2 -->|极高吞吐事件流| KFK[Kafka + 外置调度]
     Q3{Fan-out 时间线?} --> FEED[Feed 推拉 + MQ]
+    Q4{全球 Push 本地时刻?} --> PUSH[Push 时区桶 + MQ]
 ```
 
 ASCII：`复杂路由 → RabbitMQ`；`轻量延迟 → Redis ZSET`；`事件流 → Kafka`；`Timeline → Feed 笔记 + MQ`
@@ -42,6 +44,12 @@ ASCII：`复杂路由 → RabbitMQ`；`轻量延迟 → Redis ZSET`；`事件流
 1. [feed-stream-push-pull.md](../feed-stream-push-pull.md)
 2. [cache-strategies.md](../cache-strategies.md)（Timeline 缓存）
 3. [rabbitmq/reliable-publishing.md](../rabbitmq/reliable-publishing.md)（扇出 + Outbox）
+
+### 路径 D：Push / 全球触达
+
+1. [push-global-timezone-delivery.md](../push-global-timezone-delivery.md)
+2. [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md)（逐用户调度）
+3. [rabbitmq/reliable-publishing.md](../rabbitmq/reliable-publishing.md)（Campaign Outbox）
 
 ### 路径 C：搜索向
 
