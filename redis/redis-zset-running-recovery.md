@@ -407,6 +407,7 @@ Redis Streams 已内建 pending list、`XPENDING`、`XCLAIM`、`XAUTOCLAIM`，�
 
 ### 相关笔记
 
+- [redis-distributed-lock.md](./redis-distributed-lock.md) — 分布式锁与 Redisson 看门狗（对比本文任务 Lease Watchdog）
 - [redis-zset-delay-queue.md](./redis-zset-delay-queue.md) — ZSET 延迟队列全貌
 - [messaging/README.md](../messaging/README.md) — 租约语义与 MQ 可见性超时对照
 

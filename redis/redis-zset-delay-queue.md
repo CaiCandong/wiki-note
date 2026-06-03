@@ -453,6 +453,7 @@ flowchart TD
 
 ## 相关笔记
 
+- [redis-distributed-lock.md](./redis-distributed-lock.md) — 分布式锁与看门狗（与队列 Lease Watchdog 对比）
 - [redis-zset-running-recovery.md](./redis-zset-running-recovery.md) — processing 租约与 Watchdog
 - [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) — 全球化 Push 概念（调度与延迟队列场景）
 - [rabbitmq/delay-and-priority.md](../rabbitmq/delay-and-priority.md) — TTL+DLX 延迟拓扑对比

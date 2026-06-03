@@ -245,6 +245,8 @@ flowchart TB
 
 ## 十二、相关笔记
 
+- [push/README.md](./push/README.md) — Push 入门系列（基础 → Campaign → MQ → 治理）
+- [push/push-fundamentals.md](./push/push-fundamentals.md) — 三方模型与最小发送
 - [feed-stream-push-pull.md](./feed-stream-push-pull.md) — Fan-out 与 MQ 异步扇出心智模型
 - [redis/redis-zset-delay-queue.md](./redis/redis-zset-delay-queue.md) — 逐用户 / 定时任务延迟队列
 - [rabbitmq/reliable-publishing.md](./rabbitmq/reliable-publishing.md) — 可靠投递与 Outbox

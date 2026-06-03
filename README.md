@@ -36,17 +36,23 @@ flowchart TB
     end
     subgraph product["业务架构"]
         FEED[feed-stream-push-pull]
-        PUSH[push-global-timezone-delivery]
+        PUSH_G[push-global-timezone-delivery]
+        PUSH_S[push 系列]
+    end
+    subgraph ai["AI 工具"]
+        AIT[ai-tools 系列]
     end
     CACHE --> REDIS
     CACHE --> FEED
     MSG --> REDIS
     MSG --> RMQ
     MSG --> FEED
-    MSG --> PUSH
+    MSG --> PUSH_G
+    MSG --> PUSH_S
     RMQ --> FEED
-    RMQ --> PUSH
-    REDIS --> PUSH
+    RMQ --> PUSH_S
+    REDIS --> PUSH_G
+    REDIS --> PUSH_S
     ES --> FEED
 ```
 
@@ -54,11 +60,12 @@ flowchart TB
 | ------ | -------- | ---- |
 | 缓存 | [cache-strategies.md](./cache-strategies.md) | Cache-Aside 等读写策略 |
 | 消息 / 队列 / 延迟 | [messaging/README.md](./messaging/README.md) | Redis vs RabbitMQ vs Kafka 选型与学习路径 |
-| Redis 队列 | [redis/README.md](./redis/README.md) | ZSET 延迟队列、租约恢复 |
+| Redis 实践 | [redis/README.md](./redis/README.md) | 分布式锁、ZSET 延迟队列、租约恢复 |
 | RabbitMQ | [rabbitmq/README.md](./rabbitmq/README.md) | AMQP 全系列（6 篇） |
 | Elasticsearch | [elasticsearch/README.md](./elasticsearch/README.md) | 高亮、多语言搜索 |
 | Feed 流 | [feed-stream-push-pull.md](./feed-stream-push-pull.md) | 推拉模式、Fan-out、Inbox/Outbox |
-| Push | [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) | 全球化 Push 概念：时区、人群、调度 |
+| Push | [push/README.md](./push/README.md) | 入门系列 7 篇 + [全球化概念](./push-global-timezone-delivery.md) |
+| AI 工具 | [ai-tools/README.md](./ai-tools/README.md) | Agent 代码理解、IDE 插件选型 |
 
 ---
 
@@ -66,9 +73,9 @@ flowchart TB
 
 | 路径 | 顺序 |
 | ---- | ---- |
-| **A · 后端通用** | cache-strategies → redis 系列 → rabbitmq 系列 1→6 |
+| **A · 后端通用** | cache-strategies → redis 系列 1→3 → rabbitmq 系列 1→6 |
 | **B · Feed / 社交** | feed-stream-push-pull → cache-strategies → rabbitmq/reliable-publishing |
-| **D · Push / 触达** | push-global-timezone-delivery → redis/redis-zset-delay-queue → rabbitmq/reliable-publishing |
+| **D · Push / 触达** | push-global-timezone-delivery → push 系列 0→6 → redis/redis-zset-delay-queue → rabbitmq/reliable-publishing |
 | **C · 搜索** | elasticsearch/es-highlight → es-multilingual-search |
 
 详细说明见 [messaging/README.md](./messaging/README.md)。
@@ -85,6 +92,20 @@ flowchart TB
 | [feed-stream-push-pull.md](./feed-stream-push-pull.md) | Feed 流推拉、Fan-out、Inbox/Outbox |  |
 | [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) | 全球化 Push 概念介绍 |  |
 
+### [push/](./push/) — Push 入门系列
+
+系列索引与阅读顺序见 [push/README.md](./push/README.md)。
+
+| 文件 | 内容 | 原文 |
+| ---- | ---- | -------- |
+| [push-fundamentals.md](./push/push-fundamentals.md) | 基础概念、Token、V0 最小发送 |  |
+| [push-campaign-admin.md](./push/push-campaign-admin.md) | Campaign 后台、人群包 |  |
+| [push-active-users-zset.md](./push/push-active-users-zset.md) | ZSET 活跃集、离线拆包 |  |
+| [push-mq-fanout-provider.md](./push/push-mq-fanout-provider.md) | MQ 扇出、Provider、深链 |  |
+| [push-multi-vendor-token.md](./push/push-multi-vendor-token.md) | Token 服务、多厂商路由 |  |
+| [push-ab-monitor.md](./push/push-ab-monitor.md) | AB、监控、防打扰 |  |
+| [push-link-governance.md](./push/push-link-governance.md) | 链路治理、优先级、故障转移 |  |
+
 ### [elasticsearch/](./elasticsearch/) — Elasticsearch 系列
 
 | 文件 | 内容 | 原文 |
@@ -92,10 +113,11 @@ flowchart TB
 | [es-highlight.md](./elasticsearch/es-highlight.md) | Highlight 原理与生产实践 |  |
 | [es-multilingual-search.md](./elasticsearch/es-multilingual-search.md) | 多语言索引、分层查询、高亮对齐 |  |
 
-### [redis/](./redis/) — Redis 队列系列
+### [redis/](./redis/) — Redis 实践系列
 
 | 文件 | 内容 | 原文 |
 | ---- | ---- | -------- |
+| [redis-distributed-lock.md](./redis/redis-distributed-lock.md) | SETNX、单实例锁、Redlock、看门狗 |  |
 | [redis-zset-delay-queue.md](./redis/redis-zset-delay-queue.md) | ZSET 延迟队列、Reaper、选型 |  |
 | [redis-zset-running-recovery.md](./redis/redis-zset-running-recovery.md) | Running 卡死、Lease、Watchdog |  |
 
@@ -111,6 +133,14 @@ flowchart TB
 | [consumer-semantics.md](./rabbitmq/consumer-semantics.md) | ACK、Prefetch、DLX、幂等 |  |
 | [delay-and-priority.md](./rabbitmq/delay-and-priority.md) | TTL+DLX 延迟、优先级 |  |
 | [cluster-ha.md](./rabbitmq/cluster-ha.md) | 集群、Quorum Queue |  |
+
+### [ai-tools/](./ai-tools/) — AI 工具系列
+
+系列索引与阅读顺序见 [ai-tools/README.md](./ai-tools/README.md)。 Wiki 分类：**AI工具**。
+
+| 文件 | 内容 | 原文 |
+| ---- | ---- | -------- |
+| [agent-code-intelligence-comparison.md](./ai-tools/agent-code-intelligence-comparison.md) | Cursor Index / Claude Code / CodeGraph / LSP 对比与集成 |  |
 
 ### 仓库工具（非正文）
 
