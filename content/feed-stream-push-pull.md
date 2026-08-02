@@ -4,7 +4,7 @@ title: "Feed 流推拉模式与系统设计"
 
 # Feed 流推拉模式与系统设计
 
-> **版本** 2026-05 · 适用于架构设计、技术评审与实现参考
+> **版本** 2026-05 · **定位**：架构设计、技术评审与实现参考
 
 > 社交/内容 Feed 的 Fan-out（扇出）问题：推模式（写扩散）、拉模式（读扩散）、推拉混合与时间分区拉，及 Inbox/Outbox、缓存与分片等工程实践。
 
@@ -157,7 +157,50 @@ ASCII：`发帖 → 只写 Outbox`；`读 Feed → 拉 K 个 Outbox → 归并�
 
 ---
 
-### 2.3 推拉混合（生产主流）
+### 2.3 时间分区拉模式（拉模式的优化）
+
+#### 定义
+
+在 **拉模式** 下，按 **时间** 将 Feed 存为多档分区（如最近 1 小时、近期、历史）。读时根据用户 **上次刷新时间戳** 选择分区，活跃用户大多落在「热分区」小表。
+
+#### 流程
+
+```mermaid
+flowchart LR
+    subgraph store["按时间分区存储"]
+        H[热区 最近 1h]
+        M[中区 近期]
+        C[冷区 历史]
+    end
+    U[读者] -->|last_read_ts| SEL{选分区}
+    SEL --> H
+    SEL --> M
+    SEL --> C
+    H --> MERGE[归并结果]
+    M --> MERGE
+    C --> MERGE
+```
+
+#### 读写要点
+
+- 常在线用户：查询落在热区，比全量扫关注者 Outbox 快数量级。
+- 长期未登录：首次可能扫冷区，之后再次回到热区。
+- 常与 **推拉混合** 叠加：大 V 用分区 Outbox，普通用户仍推 Inbox。
+
+#### 优缺点
+
+| 优点 | 缺点 |
+| ---- | ---- |
+| 降低拉模式对 DB 的全表压力 | 分区策略与归档任务增加运维 |
+| 适合拉为主、活跃用户多的产品 | 跨分区合并逻辑要测边界 |
+
+#### 典型业务
+
+拉模式为主、活跃用户多的产品（如微博类浏览快照）；常与推拉混合叠加。
+
+---
+
+### 2.4 推拉混合（生产主流）
 
 #### 定义
 
@@ -212,45 +255,6 @@ Timeline = Merge( Inbox(已推) , Pull(大V_1..k Outbox 各 N 条) )
 #### 典型业务
 
 微博 / Twitter 类时间线；朋友圈（好友数有限时偏推，大群广播偏拉）。
-
----
-
-### 2.4 时间分区拉模式（拉模式的优化）
-
-#### 定义
-
-在 **拉模式** 下，按 **时间** 将 Feed 存为多档分区（如最近 1 小时、近期、历史）。读时根据用户 **上次刷新时间戳** 选择分区，活跃用户大多落在「热分区」小表。
-
-#### 流程
-
-```mermaid
-flowchart LR
-    subgraph store["按时间分区存储"]
-        H[热区 最近 1h]
-        M[中区 近期]
-        C[冷区 历史]
-    end
-    U[读者] -->|last_read_ts| SEL{选分区}
-    SEL --> H
-    SEL --> M
-    SEL --> C
-    H --> MERGE[归并结果]
-    M --> MERGE
-    C --> MERGE
-```
-
-#### 读写要点
-
-- 常在线用户：查询落在热区，比全量扫关注者 Outbox 快数量级。
-- 长期未登录：首次可能扫冷区，之后再次回到热区。
-- 常与 **推拉混合** 叠加：大 V 用分区 Outbox，普通用户仍推 Inbox。
-
-#### 优缺点
-
-| 优点 | 缺点 |
-| ---- | ---- |
-| 降低拉模式对 DB 的全表压力 | 分区策略与归档任务增加运维 |
-| 适合拉为主、活跃用户多的产品 | 跨分区合并逻辑要测边界 |
 
 ---
 
@@ -392,7 +396,7 @@ flowchart LR
 ### 6.2 相关笔记
 
 - [cache-strategies.md](./cache-strategies.md) — Timeline 热数据、Cache-Aside 与失效策略
-- [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) — 全球化 Push 概念（Fan-out 同类问题）
+- [push/push-global-timezone-delivery.md](./push/push-global-timezone-delivery.md) — 全球化 Push 概念（Fan-out 同类问题）
 - [messaging/README.md](./messaging/README.md) — 扇出投递用 MQ；与 Redis / RabbitMQ 选型
 - [rabbitmq/core-concepts.md](./rabbitmq/core-concepts.md) — 异步扇出 Worker 的典型 Broker 模型
 

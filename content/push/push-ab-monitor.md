@@ -14,10 +14,10 @@ title: "AB 实验、监控与防打扰"
 
 | 你的目标 | 建议阅读 |
 | -------- | -------- |
-| AB 文案择优 | 一 |
-| 监控看板字段 | 二 |
-| 产品化能力 | 三 |
-| 与全球 Push 衔接 | 四 |
+| AB 文案择优 | 一、AB 实验 |
+| 监控看板字段 | 二、监控维度 |
+| 产品化能力与智能投放 | 三、产品化能力清单 |
+| 排查「为何没收到」 | 四、case 排查 |
 
 ---
 
@@ -73,24 +73,17 @@ title: "AB 实验、监控与防打扰"
 | 能力 | 说明 |
 | ---- | ---- |
 | 暂停 / 预览 | 见 [push-active-users-zset.md](./push-active-users-zset.md) |
-| 防打扰 DND | 用户本地时段不发营销 Push（[push-global-timezone-delivery.md](../push-global-timezone-delivery.md) §9） |
+| 防打扰 DND | 用户本地时段不发营销 Push（概念见 [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) 十、术语） |
 | 频控 | Redis 滑动窗口：用户维度 N 条/天 |
 | 打散 | 同一 Campaign 随机 ±N 分钟，避免齐射 |
 | 优先级 | hot / normal / low（见 [push-link-governance.md](./push-link-governance.md)） |
 | 补偿触达 | Push 不到 → 短信/微信（多通道，可选） |
 | 厂商高优通道 | 热点任务提高 `apns-priority` / FCM `high` |
+| 智能投放时机 | 按用户**最佳触达时刻**投放 vs 固定时刻 → 打开率约 +10%～20%（手淘实践）；与概念篇**智能送达**同族，需活跃画像与调度 Tick 配合 |
 
 ---
 
-## 四、智能投放时机
-
-手淘实践：按用户**最佳触达时刻**投放 vs 固定时刻 → 打开率约 +10%～20%。
-
-与概念篇 **智能送达**、**按用户本地固定时刻** 同族；需用户活跃画像与调度 Tick 配合。
-
----
-
-## 五、case 排查（简化后）
+## 四、case 排查（简化后）
 
 重构目标：「用户为何没收到」只查 **3 个模块**日志（触发 / 调度 / Provider），而非 20+ 微服务 join。
 
@@ -102,10 +95,10 @@ title: "AB 实验、监控与防打扰"
 
 ---
 
-## 六、相关笔记
+## 五、相关笔记
 
 - [push-link-governance.md](./push-link-governance.md) — 优先级、故障转移、测试
-- [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) — 全球调度
+- [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) — 全球调度
 - [feed-stream-push-pull.md](../feed-stream-push-pull.md) — Fan-out 对比
 
 ---

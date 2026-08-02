@@ -14,11 +14,11 @@ title: "全球化 Push 概念介绍"
 
 | 你的目标 | 建议阅读 |
 | -------- | -------- |
-| 5 分钟建立心智模型 | 一、二 |
-| 选立即发还是本地时刻发 | 三 |
-| 画第一张架构图 | 四、五 |
-| 理解 DMP / 时区 / 调度分工 | 六、七 |
-| 术语查阅 | 八 |
+| 5 分钟建立心智模型 | 一、什么是全球化 Push；二、两个正交的问题 |
+| 选立即发还是本地时刻发 | 三、送达策略 |
+| 画第一张架构图 | 四、系统分层；五、按时区送达 |
+| 理解 DMP / 时区 / 调度分工 | 六、三类会变的数据；七、调度思路 |
+| 术语查阅 | 十、术语 |
 
 **读完本文应能回答**：全球 Push 和「同一时刻全员弹出」有何不同？Campaign 里该存规则还是存名单？人群、时区、Token 分别由谁提供？
 
@@ -34,7 +34,7 @@ title: "全球化 Push 概念介绍"
 - 设备平台、厂商通道、语言（locale）各不相同；
 - 发送规模从几千到**百万级**，不能靠单机同步 HTTP 打完。
 
-这与 [Feed 流 Fan-out](./feed-stream-push-pull.md) 不同：Feed 解决「内容复制到时间线」；Push 解决「**何时**、**经哪条通道**、把**一条通知**送到设备」。
+这与 [Feed 流 Fan-out](../feed-stream-push-pull.md) 不同（完整对比见 [push-fundamentals.md](./push-fundamentals.md) §七）：Feed 解决「内容复制到时间线」；Push 解决「**何时**、**经哪条通道**、把**一条通知**送到设备」。
 
 ```mermaid
 flowchart LR
@@ -185,7 +185,7 @@ flowchart TB
 
 原则：**重计算跟数据更新频率走（hourly DMP、时区事件），轻读取跟发送 Tick 走。**
 
-更细的队列、ZSET、限流实现，见 [messaging/README.md](./messaging/README.md) 与 [redis/redis-zset-delay-queue.md](./redis/redis-zset-delay-queue.md)。
+更细的队列、ZSET、限流实现，见 [messaging/README.md](../messaging/README.md) 与 [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md)。
 
 ---
 
@@ -249,12 +249,12 @@ flowchart TB
 
 ## 十二、相关笔记
 
-- [push/README.md](./push/README.md) — Push 入门系列（基础 → Campaign → MQ → 治理）
-- [push/push-fundamentals.md](./push/push-fundamentals.md) — 三方模型与最小发送
-- [feed-stream-push-pull.md](./feed-stream-push-pull.md) — Fan-out 与 MQ 异步扇出心智模型
-- [redis/redis-zset-delay-queue.md](./redis/redis-zset-delay-queue.md) — 逐用户 / 定时任务延迟队列
-- [rabbitmq/reliable-publishing.md](./rabbitmq/reliable-publishing.md) — 可靠投递与 Outbox
-- [messaging/README.md](./messaging/README.md) — 队列与异步任务选型总览
+- [README.md](./README.md) — Push 入门系列（基础 → Campaign → MQ → 治理）
+- [push-fundamentals.md](./push-fundamentals.md) — 三方模型与最小发送
+- [feed-stream-push-pull.md](../feed-stream-push-pull.md) — Fan-out 与 MQ 异步扇出心智模型
+- [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md) — 逐用户 / 定时任务延迟队列
+- [rabbitmq/reliable-publishing.md](../rabbitmq/reliable-publishing.md) — 可靠投递与 Outbox
+- [messaging/README.md](../messaging/README.md) — 队列与异步任务选型总览
 
 ---
 

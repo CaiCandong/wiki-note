@@ -4,8 +4,21 @@ title: "Elasticsearch 高亮（Highlight）入门指南"
 
 # Elasticsearch 高亮（Highlight）入门指南
 
+> **版本** 2026-08 · **定位**：搜索引擎实践 · Highlight 入门指南
 
 在做搜索系统时，我们常需要把命中的关键词在结果里标出来，例如搜索「苹果手机」返回 `<em>苹果手机</em>性能非常强`。这就是 Elasticsearch 的 **Highlight（高亮）**——搜索体验里非常重要的一环：提升可读性、帮助用户快速定位命中内容。
+
+---
+
+## 如何使用本文档
+
+| 你的目标 | 建议阅读 |
+| -------- | -------- |
+| 5 分钟理解高亮 | 一、什么是高亮；二、最简示例 |
+| 配置与选型 | 三、核心配置；五、三种高亮器 |
+| 原理与排查 | 四、Offset 原理；六、常见问题 |
+| 生产落地 | 七、生产环境最佳实践；八、生产级完整示例 |
+| 大厂方案参考 | 九、大厂为何常自研高亮 |
 
 ---
 
@@ -202,7 +215,7 @@ ES Highlight 存在 CPU 高、长文本慢、中文易碎、synonym/fuzzy 易异
 
 ---
 
-## 深入学习路径
+## 十一、深入学习路径
 
 1. Analyzer
 2. Offset
@@ -217,7 +230,7 @@ ES Highlight 存在 CPU 高、长文本慢、中文易碎、synonym/fuzzy 易异
 
 ---
 
-## 相关笔记
+## 十二、相关笔记
 
 - [es-multilingual-search.md](./es-multilingual-search.md) — 按语言分索引、`dis_max`、`highlight_query` 对齐
 - [cache-strategies.md](../cache-strategies.md) — 搜索结果缓存与 Cache-Aside

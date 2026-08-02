@@ -4,7 +4,7 @@ title: "RabbitMQ 消息可靠投递（生产者）"
 
 # RabbitMQ 消息可靠投递（生产者）
 
-> **版本** 2026-05 · Publisher Confirm、事务、Mandatory、持久化
+> **版本** 2026-05 · **定位**：Publisher Confirm、事务、Mandatory、持久化
 
 > 保证消息从生产者发出后，在 Broker 侧可观测地「接住」或明确失败，避免静默丢失。
 
@@ -16,8 +16,9 @@ title: "RabbitMQ 消息可靠投递（生产者）"
 | -------- | -------- |
 | 选型 Confirm vs 事务 | 二、快速选型 |
 | 实现 Confirm 回调 | 三、Publisher Confirm |
-| 无法路由时处理 | 五、Mandatory 与 Return |
-| 上线 checklist | 六、生产实践 |
+| 持久化三件套 | 五、持久化三件套 |
+| 无法路由时处理 | 六、Mandatory 与 Return |
+| 上线 checklist | 七、生产实践 |
 
 **核心原则**：**持久化**解决 Broker 重启丢消息；**Confirm** 解决「Broker 是否已接收」；**Mandatory + Return** 解决「是否成功路由到队列」。
 
@@ -112,15 +113,27 @@ sequenceDiagram
 
 ---
 
-## 五、Mandatory 与 Return
+## 五、持久化三件套
 
-### 5.1 定义
+| 层级 | 配置 |
+| ---- | ---- |
+| Exchange | `durable=true`（类型默认 durable 除临时场景） |
+| Queue | `durable=true` |
+| Message | `delivery_mode=2`（persistent） |
+
+注意：持久化消息会写盘（可配置 lazy queue），延迟略高于纯内存。
+
+---
+
+## 六、Mandatory 与 Return
+
+### 6.1 定义
 
 `mandatory=true`：若消息**无法路由**到任何 Queue，Broker 通过 `basic.return` 退回生产者（reply code 312 NO_ROUTE）。
 
 需注册 **Return Listener**。
 
-### 5.2 流程
+### 6.2 流程
 
 ```mermaid
 sequenceDiagram
@@ -136,7 +149,7 @@ sequenceDiagram
     end
 ```
 
-### 5.3 要点
+### 6.3 要点
 
 | 项 | 说明 |
 | ---- | ---- |
@@ -145,18 +158,6 @@ sequenceDiagram
 | 默认 mandatory=false | 无路由时**静默丢弃** |
 
 **典型业务**：关键计费事件必须进队列，否则 return 回调写告警 + 人工队列。
-
----
-
-## 六、持久化三件套
-
-| 层级 | 配置 |
-| ---- | ---- |
-| Exchange | `durable=true`（类型默认 durable 除临时场景） |
-| Queue | `durable=true` |
-| Message | `delivery_mode=2`（persistent） |
-
-注意：持久化消息会写盘（可配置 lazy queue），延迟略高于纯内存。
 
 ---
 

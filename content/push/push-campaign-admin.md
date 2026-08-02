@@ -37,7 +37,7 @@ title: "Campaign 后台与人群包"
 
 - 运营后台：上传人群、配置文案、定时发送
 - 分端：Android / iOS 独立配置
-- **Campaign 存规则**，不预计算千万级「用户 × 时区」名单（见 [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) §6）
+- **Campaign 存规则**，不预计算千万级「用户 × 时区」名单（见 [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) §6）
 
 ---
 
@@ -136,7 +136,7 @@ flowchart LR
 
 - [push-fundamentals.md](./push-fundamentals.md) — 最小 Push 链路
 - [push-active-users-zset.md](./push-active-users-zset.md) — 月活/全量实时推
-- [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) — 全球 Campaign 规则
+- [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) — 全球 Campaign 规则
 - [rabbitmq/reliable-publishing.md](../rabbitmq/reliable-publishing.md) — Campaign 触发 + Outbox
 
 ---

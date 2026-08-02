@@ -100,7 +100,7 @@ PushProvider.send(SendRequest) → SendResult
 - **注册三合一**：注册+绑定+上报一个接口 → 成功率 90% → **99.9%**
 - 统一 Golang 高 IO 技术栈
 
-全球化：海外 FCM Quota 见 [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) §8。
+全球化：海外 FCM Quota 见 [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) §8。
 
 ---
 

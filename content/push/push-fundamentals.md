@@ -6,7 +6,7 @@ title: "Push 基础概念与最小发送链路"
 
 > **版本** 2026-05 · **定位**：Push 入门系列 · 基础篇（阶段 0）
 
-> 移动端 Push 的三方模型、在线/离线触达、消息类型与 Token 体系；以及从 Token 注册到 APNs/FCM 最小发送的工程路径。全球时区与 Campaign 规则见 [push-global-timezone-delivery.md](../push-global-timezone-delivery.md)。
+> 移动端 Push 的三方模型、在线/离线触达、消息类型与 Token 体系；以及从 Token 注册到 APNs/FCM 最小发送的工程路径。全球时区与 Campaign 规则见 [push-global-timezone-delivery.md](./push-global-timezone-delivery.md)。
 
 ---
 
@@ -14,11 +14,11 @@ title: "Push 基础概念与最小发送链路"
 
 | 你的目标 | 建议阅读 |
 | -------- | -------- |
-| 5 分钟建立心智模型 | 一、二 |
-| 搞清通知 vs 透传 | 三 |
-| Token 与通道选型 | 四、五 |
-| 画 V0 架构 / Demo | 六、七 |
-| 自检是否掌握 | 八 |
+| 5 分钟建立心智模型 | 一、推送的本质：三方模型；二、Push 与 IM |
+| 搞清通知 vs 透传 | 三、在线 vs 离线；通知 vs 透传 |
+| Token 与通道选型 | 四、Token 体系；五、典型系统分层 |
+| 画 V0 架构 / Demo | 六、最小可用 Push（V0）；七、Push 与 Feed Fan-out 的区别 |
+| 自检是否掌握 | 八、自检清单 |
 
 **读完本文应能回答**：Push 与 IM 长连接的分工？deviceToken 何时失效？最小 Push 系统需要哪三个组件？
 
@@ -113,11 +113,7 @@ App 离线  → 降级厂商通道（高到达率）
 
 **服务端映射**：`userId` 1:N `deviceToken`；`deviceToken` → `vendor`（华为/小米/APNs…）。
 
-**失效清理**：
-
-- APNs：HTTP/2 响应 **410** → 立即删除
-- FCM：发送失败错误码识别
-- 厂商：卸载/轮换 HTTP 回调
+**失效清理**：APNs 410、FCM 错误码、厂商回调与归档策略，详见 [push-multi-vendor-token.md](./push-multi-vendor-token.md) §四。
 
 **APNs 连接**：保持 HTTP/2 **长连接池**（约 5～10 条）；单连接约 2000 QPS；勿每条消息新建连接。
 
@@ -210,7 +206,7 @@ flowchart TB
 | APNs 详解 | https://cloud.tencent.com/developer/article/1198303 |
 | FCM 架构 | https://firebase.google.com/docs/cloud-messaging/fcm-architecture?hl=zh-cn |
 | 50M 设备 Push 架构 | https://designgurus.substack.com/p/push-notification-architecture-apns |
-| 全球化 Push 概念 | [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) |
+| 全球化 Push 概念 | [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) |
 
 ---
 

@@ -4,7 +4,7 @@ title: "AI 编码 Agent 代码理解方案对比"
 
 # AI 编码 Agent 代码理解方案对比
 
-> **版本** 2026-05 v2 · 适用于 Cursor + Claude Code 双栈选型与集成
+> **版本** 2026-05 v2 · **定位**：Cursor + Claude Code 双栈选型与集成
 
 > 对比 Cursor Index、Claude Code 默认搜索、CodeGraph、LSP 及 Serena、Sourcegraph、Aider repo-map、ast-grep MCP 等扩展方案的定位与选型。
 

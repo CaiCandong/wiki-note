@@ -4,14 +4,14 @@ title: "Push 系统入门系列"
 
 # Push 系统入门系列
 
-> 本目录收录移动端 Push 从基础概念到规模化治理的实战笔记。全球时区与 Campaign 规则见根目录 [push-global-timezone-delivery.md](../push-global-timezone-delivery.md)。
+> 本目录收录移动端 Push 从基础概念到规模化治理的实战笔记。全球时区与 Campaign 规则见概念篇 [push-global-timezone-delivery.md](./push-global-timezone-delivery.md)。
 
 ## 如何使用本系列
 
 | 你的目标 | 建议 |
 | -------- | ---- |
 | 按学习顺序阅读 | 下表序号 0 → 6 |
-| 全球 Push / 时区 | 先读 [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) |
+| 全球 Push / 时区 | 先读 [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) |
 
 **主线参考**：
 
@@ -22,6 +22,7 @@ title: "Push 系统入门系列"
 
 | 序号 | 文件 | 主题 |
 | ---- | ---- | ---- |
+| 0.5 | [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) | 全球时区与 Campaign 规则（概念篇，可任意阶段读） |
 | 0 | [push-fundamentals.md](./push-fundamentals.md) | 三方模型、Token、V0 最小发送 |
 | 1 | [push-campaign-admin.md](./push-campaign-admin.md) | Campaign 后台、人群包 |
 | 2 | [push-active-users-zset.md](./push-active-users-zset.md) | Redis ZSET 活跃集、离线拆包 |
@@ -34,7 +35,7 @@ title: "Push 系统入门系列"
 
 | 主题 | 入口 |
 | ---- | ---- |
-| 全球 Push 概念 | [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) |
+| 全球 Push 概念 | [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) |
 | Redis ZSET | [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md) |
 | MQ 可靠投递 | [rabbitmq/reliable-publishing.md](../rabbitmq/reliable-publishing.md) |
 | 选型与学习路径 | [messaging/README.md](../messaging/README.md) 路径 D |

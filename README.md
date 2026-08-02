@@ -21,69 +21,10 @@ npx quartz build           # 构建产物到 public/（已 gitignore）
 
 ---
 
-## 主题地图
+## 站点导航
 
-```mermaid
-flowchart TB
-    subgraph foundation["基础层"]
-        CACHE[cache-strategies]
-        RATE[rate-limit-leaky-bucket]
-    end
-    subgraph messaging["消息与队列"]
-        MSG[messaging 选型总览]
-        REDIS[redis 系列]
-        RMQ[rabbitmq 系列]
-    end
-    subgraph search["搜索"]
-        ES[elasticsearch 系列]
-    end
-    subgraph product["业务架构"]
-        FEED[feed-stream-push-pull]
-        PUSH_G[push-global-timezone-delivery]
-        PUSH_S[push 系列]
-    end
-    subgraph ai["AI 工具"]
-        AIT[ai-tools 系列]
-    end
-    CACHE --> REDIS
-    CACHE --> FEED
-    CACHE --> RATE
-    MSG --> REDIS
-    MSG --> RMQ
-    MSG --> FEED
-    MSG --> PUSH_G
-    MSG --> PUSH_S
-    RMQ --> FEED
-    RMQ --> PUSH_S
-    REDIS --> PUSH_G
-    REDIS --> PUSH_S
-    ES --> FEED
-```
-
-| 主题域 | 本地入口 | 说明 |
-| ------ | -------- | ---- |
-| 缓存 | [content/cache-strategies.md](./content/cache-strategies.md) | Cache-Aside 等读写策略 |
-| 限流 | [content/rate-limit-leaky-bucket.md](./content/rate-limit-leaky-bucket.md) | 漏桶 / 令牌桶原理与 Go 实现 |
-| 消息 / 队列 / 延迟 | [content/messaging/README.md](./content/messaging/README.md) | Redis vs RabbitMQ vs Kafka 选型与学习路径 |
-| Redis 实践 | [content/redis/README.md](./content/redis/README.md) | 分布式锁、ZSET 延迟队列、租约恢复 |
-| RabbitMQ | [content/rabbitmq/README.md](./content/rabbitmq/README.md) | AMQP 全系列（6 篇） |
-| Elasticsearch | [content/elasticsearch/README.md](./content/elasticsearch/README.md) | 高亮、多语言搜索 |
-| Feed 流 | [content/feed-stream-push-pull.md](./content/feed-stream-push-pull.md) | 推拉模式、Fan-out、Inbox/Outbox |
-| Push | [content/push/README.md](./content/push/README.md) | 入门系列 7 篇 + [全球化概念](./content/push-global-timezone-delivery.md) |
-| AI 工具 | [content/ai-tools/README.md](./content/ai-tools/README.md) | Agent 代码理解、IDE 插件选型 |
-
----
-
-## 推荐学习路径
-
-| 路径 | 顺序 |
-| ---- | ---- |
-| **A · 后端通用** | cache-strategies → redis 系列 1→3 → rabbitmq 系列 1→6 |
-| **B · Feed / 社交** | feed-stream-push-pull → cache-strategies → rabbitmq/reliable-publishing |
-| **D · Push / 触达** | push-global-timezone-delivery → push 系列 0→6 → redis/redis-zset-delay-queue → rabbitmq/reliable-publishing |
-| **C · 搜索** | elasticsearch/es-highlight → es-multilingual-search |
-
-详细说明见 [content/messaging/README.md](./content/messaging/README.md)。
+- 主题地图、主题域入口与推荐学习路径 → [content/index.md](./content/index.md)（站点首页）
+- 消息 / 队列 / 延迟选型 → [content/messaging/README.md](./content/messaging/README.md)
 
 ---
 
@@ -95,9 +36,8 @@ flowchart TB
 | ---- | ---- |
 | [content/cache-strategies.md](./content/cache-strategies.md) | 缓存策略：Cache-Aside / Read-Through / Write-Through 等 |
 | [content/feed-stream-push-pull.md](./content/feed-stream-push-pull.md) | Feed 流推拉、Fan-out、Inbox/Outbox |
-| [content/push-global-timezone-delivery.md](./content/push-global-timezone-delivery.md) | 全球化 Push 概念介绍 |
 | [content/rate-limit-leaky-bucket.md](./content/rate-limit-leaky-bucket.md) | 漏桶 / 令牌桶限流算法与 Go 实现 |
-| [content/index.md](./content/index.md) | 站点首页（与本站主题地图一致） |
+| [content/index.md](./content/index.md) | 站点首页（主题地图 + 学习路径） |
 
 ### [content/push/](./content/push/) — Push 入门系列
 
@@ -105,6 +45,7 @@ flowchart TB
 
 | 文件 | 内容 |
 | ---- | ---- |
+| [content/push/push-global-timezone-delivery.md](./content/push/push-global-timezone-delivery.md) | 全球化 Push 概念（时区送达，篇 0.5） |
 | [content/push/push-fundamentals.md](./content/push/push-fundamentals.md) | 基础概念、Token、V0 最小发送 |
 | [content/push/push-campaign-admin.md](./content/push/push-campaign-admin.md) | Campaign 后台、人群包 |
 | [content/push/push-active-users-zset.md](./content/push/push-active-users-zset.md) | ZSET 活跃集、离线拆包 |
@@ -153,5 +94,6 @@ flowchart TB
 
 ## 维护
 
+- **导航分工**：主题地图与学习路径归 [content/index.md](./content/index.md)，选型归 [content/messaging/README.md](./content/messaging/README.md)，本文档只做落地页与全量目录
 - **新增 / 删除 / 移动笔记**：同步更新本文档目录、对应系列 `README.md` 与 [content/index.md](./content/index.md)；书写规范见 [CLAUDE.md](./CLAUDE.md)
 - **站点部署**：推送 `main` 后 GitHub Actions 自动构建发布到 https://caicandong.github.io/wiki-note/（首次需在仓库 Settings → Pages → Source 选择 **GitHub Actions**）

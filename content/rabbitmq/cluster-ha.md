@@ -4,7 +4,7 @@ title: "RabbitMQ 集群与高可用"
 
 # RabbitMQ 集群与高可用
 
-> **版本** 2026-05 · 集群、Quorum Queue、Classic 镜像、选型
+> **版本** 2026-05 · **定位**：集群、Quorum Queue、Classic 镜像、选型
 
 > 多节点部署、队列 HA 类型、网络分区与生产容量规划。
 

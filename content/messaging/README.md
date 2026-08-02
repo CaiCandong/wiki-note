@@ -15,11 +15,25 @@ title: "消息、队列与异步任务 — 选型总览"
 | 轻量延迟任务、调度点少、团队已有 Redis | Redis ZSET 延迟队列 | [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md) |
 | Worker 宕机后任务卡在 running | ZSET + Lease + Watchdog | [redis/redis-zset-running-recovery.md](../redis/redis-zset-running-recovery.md) |
 | 微服务解耦、路由复杂、要 Confirm/ACK/DLX | RabbitMQ | [rabbitmq/README.md](../rabbitmq/README.md) |
-| 超高吞吐事件流、日志、回放、分区消费 | Kafka（本库暂无专篇，见各文对比表） | redis 延迟队列文末选型 |
+| 超高吞吐事件流、日志、回放、分区消费 | Kafka（本库暂无专篇） | 本文「延迟队列方案要点」 |
 | 发帖扇出、Timeline 投递 | MQ 异步扇出 + 推拉混合 | [feed-stream-push-pull.md](../feed-stream-push-pull.md) |
-| 全球 Push、按用户本地时刻送达 | 概念：cohort × 时区触发；实现见 push 系列 | [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) |
+| 全球 Push、按用户本地时刻送达 | 概念：cohort × 时区触发；实现见 push 系列 | [push/push-global-timezone-delivery.md](../push/push-global-timezone-delivery.md) |
 | Push 平台从 0 到规模化 | push 入门系列 0→6 | [push/README.md](../push/README.md) |
 | 业务写 DB 与发 MQ 的一致性 | Outbox 模式 | [rabbitmq/reliable-publishing.md](../rabbitmq/reliable-publishing.md) §7.3 |
+
+## 延迟队列方案要点
+
+**Redis ZSET** — 轻、快、任意延迟；需自研可靠性，内存随积压涨。实现见 [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md)。
+
+**RabbitMQ** — `x-delayed-message` 适合天级内延迟；海量在途需压测。TTL+DLX 更偏传统可靠延迟。
+
+**Kafka** — 无一等公民延迟消息，常用分桶/外部调度。
+
+**RocketMQ** — 4.x 固定 18 档延迟；5.x 时间轮支持任意秒级。
+
+**数据库（PostgreSQL 等）** — 与业务同事务；轮询有 DB 压力，适合量不大且要强一致。
+
+**内存时间轮** — 刻度内精度、单进程嵌入；可靠性低（内存态）。
 
 ```mermaid
 flowchart TD
@@ -38,29 +52,7 @@ ASCII：`复杂路由 → RabbitMQ`；`轻量延迟 → Redis ZSET`；`事件流
 
 ## 推荐学习路径
 
-### 路径 A：从缓存到队列（后端通用）
-
-1. [cache-strategies.md](../cache-strategies.md)
-2. [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md)
-3. [rabbitmq/core-concepts.md](../rabbitmq/core-concepts.md) → 系列 2～6
-
-### 路径 B：社交 / Feed 向
-
-1. [feed-stream-push-pull.md](../feed-stream-push-pull.md)
-2. [cache-strategies.md](../cache-strategies.md)（Timeline 缓存）
-3. [rabbitmq/reliable-publishing.md](../rabbitmq/reliable-publishing.md)（扇出 + Outbox）
-
-### 路径 D：Push / 全球触达
-
-1. [push-global-timezone-delivery.md](../push-global-timezone-delivery.md)（全球概念）
-2. [push/push-fundamentals.md](../push/push-fundamentals.md) → [push/README.md](../push/README.md) 系列 1～6
-3. [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md)（活跃集 / 调度）
-4. [rabbitmq/reliable-publishing.md](../rabbitmq/reliable-publishing.md)（Campaign Outbox）
-
-### 路径 C：搜索向
-
-1. [elasticsearch/es-highlight.md](../elasticsearch/es-highlight.md)
-2. [elasticsearch/es-multilingual-search.md](../elasticsearch/es-multilingual-search.md)
+完整学习路径（A 后端通用 / B Feed / C 搜索 / D Push）见 [index.md](../index.md)。
 
 ---
 

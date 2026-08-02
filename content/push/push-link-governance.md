@@ -93,21 +93,13 @@ flowchart TB
 
 ---
 
-## 六、设计口诀（双文汇总）
+## 六、设计口诀（回顾）
 
-**转转**：
-
-- 提速：预加载 + 缓存 + 多线程 + 批量 + 深链
-- 稳态：异步上传 + 限流 + 降级 + 分层解耦
-- 不要：算死千万名单；单通道 Android；忽视落地页流量
-
-**腾讯新闻**：
-
-- 链路：少 RPC；18 模块非先进
-- 数据：离线拆包；batch IO
-- 调度：热点优先 + 高价值用户优先
-- 可靠：backup 故障转移；注册接口合并
-- 度量：内部 vs 全链路；延迟 -50% → 点击 +10%
+| 出处 | 口诀要点 | 详见 |
+| ---- | -------- | ---- |
+| 转转 | 提速：预加载 + 缓存 + 批量 + 深链；稳态：异步上传 + 限流 + 降级；不预算死名单、不单通道 | [push-campaign-admin.md](./push-campaign-admin.md)、[push-multi-vendor-token.md](./push-multi-vendor-token.md) |
+| 腾讯新闻 | 少 RPC、离线拆包、batch IO、热点与高价值用户优先、backup 故障转移、注册接口合并 | [push-active-users-zset.md](./push-active-users-zset.md)、[push-mq-fanout-provider.md](./push-mq-fanout-provider.md) |
+| 度量 | 内部 vs 全链路；延迟 -50% → 点击 +10% | [push-ab-monitor.md](./push-ab-monitor.md) §2.1 |
 
 ---
 

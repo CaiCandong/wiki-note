@@ -55,14 +55,31 @@ flowchart TB
 | RabbitMQ | [rabbitmq/README.md](./rabbitmq/README.md) | AMQP 全系列（6 篇） |
 | Elasticsearch | [elasticsearch/README.md](./elasticsearch/README.md) | 高亮、多语言搜索 |
 | Feed 流 | [feed-stream-push-pull.md](./feed-stream-push-pull.md) | 推拉模式、Fan-out、Inbox/Outbox |
-| Push | [push/README.md](./push/README.md) | 入门系列 7 篇 + [全球化概念](./push-global-timezone-delivery.md) |
+| Push | [push/README.md](./push/README.md) | 全球化概念篇 + 入门系列 0→6（共 8 篇） |
 | AI 工具 | [ai-tools/README.md](./ai-tools/README.md) | Agent 代码理解、IDE 插件选型 |
 
 ## 推荐学习路径
 
-| 路径 | 顺序 |
-| ---- | ---- |
-| **A · 后端通用** | cache-strategies → redis 系列 1→3 → rabbitmq 系列 1→6 |
-| **B · Feed / 社交** | feed-stream-push-pull → cache-strategies → rabbitmq/reliable-publishing |
-| **D · Push / 触达** | push-global-timezone-delivery → push 系列 0→6 → redis/redis-zset-delay-queue → rabbitmq/reliable-publishing |
-| **C · 搜索** | elasticsearch/es-highlight → es-multilingual-search |
+### 路径 A：从缓存到队列（后端通用）
+
+1. [cache-strategies.md](./cache-strategies.md)
+2. [redis/redis-zset-delay-queue.md](./redis/redis-zset-delay-queue.md)
+3. [rabbitmq/core-concepts.md](./rabbitmq/core-concepts.md) → 系列 2～6
+
+### 路径 B：社交 / Feed 向
+
+1. [feed-stream-push-pull.md](./feed-stream-push-pull.md)
+2. [cache-strategies.md](./cache-strategies.md)（Timeline 缓存）
+3. [rabbitmq/reliable-publishing.md](./rabbitmq/reliable-publishing.md)（扇出 + Outbox）
+
+### 路径 C：搜索向
+
+1. [elasticsearch/es-highlight.md](./elasticsearch/es-highlight.md)
+2. [elasticsearch/es-multilingual-search.md](./elasticsearch/es-multilingual-search.md)
+
+### 路径 D：Push / 全球触达
+
+1. [push/push-global-timezone-delivery.md](./push/push-global-timezone-delivery.md)（全球概念）
+2. [push/push-fundamentals.md](./push/push-fundamentals.md) → [push/README.md](./push/README.md) 系列 1～6
+3. [redis/redis-zset-delay-queue.md](./redis/redis-zset-delay-queue.md)（活跃集 / 调度）
+4. [rabbitmq/reliable-publishing.md](./rabbitmq/reliable-publishing.md)（Campaign Outbox）

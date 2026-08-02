@@ -4,58 +4,21 @@ title: "Redis ZSET 消费队列：如何最简化解决 Running 卡死"
 
 # Redis ZSET 消费队列：如何最简化解决 Running 卡死
 
+> **版本** 2026-05 · **定位**：后端 / 架构 · 问题驱动篇（Running 卡死恢复）
 
-## 摘要
+> 任务进入 running 后 worker 异常退出 → **永久卡死**。本文从问题出发给出最简解法：**ZSET + Lease + Watchdog**（processing 租约 + 超时回收），并给出两段关键 Lua。双队列完整模型与生产化细节见 [redis-zset-delay-queue.md](./redis-zset-delay-queue.md)。
 
-很多团队用 Redis ZSET 自建延迟队列、定时任务和异步消费。上线后常遇到经典问题：**任务进入 running 后，worker 异常退出，任务永久卡死**。
+## 如何使用本文档
 
-最简且成熟的解法是 **ZSET + Lease + Watchdog**：用 `queue:processing` 的 score 表示租约到期时间，不依赖 worker 正常回写；超时由 Watchdog 自动回收到 `queue:ready`。
+| 你的目标 | 建议阅读 |
+| -------- | -------- |
+| 3 分钟理解问题与解法 | 一、问题；二、最简方案 |
+| 领取 / 回收的原子实现 | 三、关键实现：两段 Lua |
+| 与全貌篇的分工 | 四 |
+| 队列模型选型 | 五、ZSET vs Streams；附录 |
+| 上线前自检 | 六、上线检查清单 |
 
-你必须接受 **至少一次投递**，业务必须 **幂等**。不适合强 exactly-once、无幂等的长事务、复杂 DAG 编排（应使用 Temporal、Airflow 等工作流引擎）。
-
----
-
-## 适用场景
-
-
-| 适合                         | 不适合                |
-| -------------------------- | ------------------ |
-| 中小规模异步任务、延迟/定时、可重试         | 强 exactly-once、无法幂等 |
-| 团队希望 Lua 透明、运维简单           | 复杂 DAG、长编排、强审计工作流 |
-| 可接受重复执行 + 幂等设计            | 超大吞吐且不愿自建监控        |
-
-
----
-
-## 流程图总览
-
-下图展示 **ready / processing / deadletter** 三队列与 Worker、Watchdog 的关系（详见各章节流程图）。
-
-```mermaid
-flowchart TB
-  subgraph producers [生产者]
-    API[API / Cron]
-  end
-  subgraph redis [Redis ZSET]
-    Ready["queue:ready
-score=可执行时间"]
-    Processing["queue:processing
-score=lease 到期"]
-    DLQ[queue:deadletter]
-  end
-  subgraph workers [运行时]
-    W[Worker]
-    D[Watchdog]
-  end
-  API -->|ZADD| Ready
-  Ready -->|Lua Claim| Processing
-  W -->|执行业务| W
-  W -->|heartbeat| Processing
-  W -->|ZREM 成功| Done([完成])
-  Processing -->|lease 过期| D
-  D -->|ZREM + ZADD 退避| Ready
-  D -->|retry 超限| DLQ
-```
+**适用前提**：中小规模异步任务、延迟/定时、可重试可幂等。强 exactly-once、复杂 DAG 长编排请用 Temporal / Airflow 等工作流引擎。
 
 ---
 
@@ -63,85 +26,40 @@ score=lease 到期"]
 
 典型消费流程（**无租约、无回收**）：
 
-这是所有分布式任务系统的共性问题，Celery、Airflow、Kafka Consumer、SQS、RocketMQ、Temporal 等本质相同：**消费者已经死亡，但系统不知道**。
-
----
-
-## 二、最容易踩的错误设计
-
-常见结构：
-
-```
-queue:zset          # 待执行
-task_status:hash    # task_id -> running/success/fail
-```
-
-消费流程：
-
-```
+```text
 1. ZPOP / ZRANGEBYSCORE 取任务
 2. HSET status=running
 3. 执行业务
 4. HSET status=success
 ```
 
-问题在于：**running 状态没有自动恢复机制**。worker 在执行期间 crash 后，`task.status = running` 永久存在，导致僵尸任务、无法重试、吞吐下降。
+这是所有分布式任务系统的共性问题（Celery、Airflow、Kafka Consumer、SQS、RocketMQ、Temporal 本质相同）：**消费者已经死亡，但系统不知道**。`status=running` 没有自动恢复机制，worker crash 后永久存在 → 僵尸任务、无法重试、吞吐下降。
 
 ### 反模式 vs 租约方案
 
-
-| 维度          | 反模式（ready ZSET + status Hash） | 推荐（ready + processing lease）       |
-| ----------- | ----------------------------- | --------------------------------- |
-| Running 含义  | Hash 字段，无 TTL                 | processing 的 score = lease 到期时间   |
-| Worker crash 后 | 永久 running                    | Watchdog 按 score 回收               |
-| 领取原子性       | 多步易丢/重复                       | Lua 一次 ready → processing         |
-| 是否依赖正常退出    | 是                             | 否                                 |
-
-
-```mermaid
-flowchart LR
-  subgraph bad [反模式]
-    B1[取任务] --> B2[Hash=running]
-    B2 --> B3[执行]
-    B3 --> B4{正常退出?}
-    B4 -->|是| B5[success]
-    B4 -->|否 crash| B6[永久 running]
-  end
-  subgraph good [租约方案]
-    G1[Lua Claim] --> G2[processing lease]
-    G2 --> G3[执行]
-    G3 --> G4{ZREM?}
-    G4 -->|是| G5[完成]
-    G4 -->|否| G6[Watchdog 回收]
-    G6 --> G1
-  end
-```
+| 维度 | 反模式（ready ZSET + status Hash） | 推荐（ready + processing lease） |
+| ---- | --------------------------------- | --------------------------------- |
+| Running 含义 | Hash 字段，无 TTL | processing 的 score = lease 到期时间 |
+| Worker crash 后 | 永久 running | Watchdog 按 score 回收 |
+| 领取原子性 | 多步易丢/重复 | Lua 一次 ready → processing |
+| 是否依赖正常退出 | 是 | 否 |
 
 ---
 
-## 三、最简化方案：ZSET + Lease + Watchdog
+## 二、最简方案：ZSET + Lease + Watchdog
 
-不必一开始就上复杂状态机、分布式事务或工作流引擎。对大部分业务：
+**两个 ZSET + 租约 + 超时回收** 就足够稳定，不必一上来就上状态机、分布式事务或工作流引擎：
 
-**两个 ZSET + 租约 + 超时回收** 就足够稳定。这是工业界经典做法之一。
-
-### 推荐数据结构
-
-```
+```text
 queue:ready         # 待消费，score = 可执行时间戳，member = task_id
 queue:processing    # 执行中，score = lease_expire_time，member = task_id
 queue:deadletter    # 可选，超过重试阈值
 task:meta:{id}      # 可选 Hash，存 payload、retry_count 等
 ```
 
-示例：
+为什么必须双队列（仅操作 ready 而无 processing，Pod 宕机会**丢任务**）、以及完整数据模型，见 [redis-zset-delay-queue.md](./redis-zset-delay-queue.md) §2.2。
 
-```
-ZADD queue:ready 1710000000 task_123
-ZADD queue:processing 1710000030 task_123
-```
-
-### 任务状态机
+状态机：
 
 ```mermaid
 stateDiagram-v2
@@ -154,7 +72,7 @@ stateDiagram-v2
   DeadLetter --> [*]
 ```
 
-### 流程概览（时序）
+时序（含 heartbeat 与回收）：
 
 ```mermaid
 sequenceDiagram
@@ -179,9 +97,9 @@ sequenceDiagram
 
 ---
 
-## 四、完整消费流程
+## 三、关键实现：两段 Lua
 
-### Step 1：领取任务（必须原子）
+### 3.1 Claim（领取，必须原子）
 
 ```lua
 -- KEYS[1]=queue:ready  KEYS[2]=queue:processing
@@ -200,47 +118,9 @@ redis.call('ZADD', KEYS[2], ARGV[2], task)
 return task
 ```
 
-含义：`ready → processing` 必须在同一段 Lua 内完成，否则可能丢任务或重复领取。
+`ready → processing` 必须在同一段 Lua 内完成，否则可能丢任务或重复领取。
 
-### Step 2：执行业务
-
-Worker 处理真实逻辑。任务元数据（payload、retry）建议放 `task:meta:{id}` Hash，不要塞进 ZSET member。
-
-### Step 3：Heartbeat（长任务可选）
-
-执行时间可能超过 lease 时，周期性续约：
-
-```
-ZADD queue:processing <new_lease_expire> <task_id>
-```
-
-建议：**lease ≈ 3 × heartbeat_interval**。例如 heartbeat 每 10s，lease 30s。短任务（秒级）可省略 heartbeat。
-
-### Step 4：任务完成
-
-```
-ZREM queue:processing <task_id>
-```
-
-成功即结束；失败可走重试逻辑（见第七节）。
-
-### Step 5：Watchdog 回收（核心）
-
-```mermaid
-flowchart TD
-  Start([Watchdog 定时触发]) --> Scan[ZRANGEBYSCORE processing -inf now]
-  Scan --> Empty{有过期任务?}
-  Empty -->|否| End([结束本轮])
-  Empty -->|是| Loop[遍历 task_id]
-  Loop --> Zrem{ZREM processing}
-  Zrem -->|返回 0| Skip[Worker 已完成 跳过]
-  Zrem -->|返回 1| Retry{retry 超限?}
-  Retry -->|否| Backoff[ZADD ready 退避时间]
-  Retry -->|是| DLQ[ZADD deadletter]
-  Backoff --> Loop
-  DLQ --> Loop
-  Skip --> Loop
-```
+### 3.2 Reclaim（Watchdog 回收）
 
 ```lua
 -- KEYS[1]=queue:processing  KEYS[2]=queue:ready
@@ -260,95 +140,15 @@ end
 return reclaimed
 ```
 
-**为何先 ZREM 再 ZADD**：若 worker 刚好在完成并 `ZREM processing`，Watchdog 的 `ZREM` 返回 0，不会重复入队。
+**为何先 ZREM 再 ZADD**：若 worker 刚好完成并 `ZREM processing`，Watchdog 的 `ZREM` 返回 0，不会重复入队。
 
----
+**为什么有效**：processing ZSET 本质是**租约表（lease table）**——score = lease_expire_time，不续约则到期回收。与 Kafka `session.timeout.ms`、SQS Visibility Timeout、Temporal Activity Heartbeat 同类机制。
 
-## 五、为什么有效
+### 3.3 Heartbeat 与参数
 
-**processing ZSET 本质是租约表（lease table）**：score = lease_expire_time；不续约则到期回收。与 Kafka session timeout、SQS Visibility Timeout、Temporal Activity Heartbeat 同类。
+长任务执行可能超过 lease，周期性续约：`ZADD queue:processing <new_lease_expire> <task_id>`。建议 **lease ≈ 3 × heartbeat_interval**（例：heartbeat 10s → lease 30s）；短任务（秒级）可省略 heartbeat。lease / Watchdog 周期 / 重投与 DLQ 参数建议见 [redis-zset-delay-queue.md](./redis-zset-delay-queue.md) §5.4。
 
----
-
-## 六、必须接受「至少一次投递」
-
-```mermaid
-flowchart TD
-  A[Worker 执行业务] --> B{业务已成功?}
-  B -->|是| C{ZREM processing}
-  C -->|成功| D[结束 无重复]
-  C -->|crash 前未 ZREM| E[Watchdog 重投 ready]
-  E --> F[另一 Worker 再次执行]
-  F --> G[必须幂等去重]
-  B -->|否| H[正常失败重试]
-```
-
-典型重复场景：
-
-
-| 场景                                     | 结果                              |
-| -------------------------------------- | ------------------------------- |
-| 业务已成功，`ZREM processing` 前 crash       | Watchdog 重投，可能再执行一次              |
-| 网络抖动导致 heartbeat 失败                    | 可能被误判回收（调大 lease 或加强 heartbeat） |
-| 两个 Watchdog 实例                         | 靠 `ZREM` 返回值去重，仍可能边界重复          |
-
-
-因此业务必须幂等，例如：
-
-
-| 手段                                       | 说明                                       |
-| ---------------------------------------- | ---------------------------------------- |
-| 数据库唯一键                                   | `UNIQUE(task_id)` 保证只写一次                 |
-| 状态机 CAS                                  | `UPDATE ... WHERE status='pending'`      |
-| `INSERT ... ON CONFLICT DO NOTHING`      | 天然去重                                     |
-| 幂等 token 表                               | 先查后做，或 Redis SETNX                       |
-
-
-否则会出现重复扣款、重复发消息、重复创建资源。
-
----
-
-## 七、生产化增强
-
-### 1. retry_count 与死信
-
-在 `task:meta:{id}` 维护 `retry`。每次回收时 `INCR`，超过阈值：
-
-```
-ZREM queue:processing task_id
-ZADD queue:deadletter <now> task_id
-```
-
-### 2. 指数退避
-
-不要立即重试，避免失败风暴：
-
-```
-delay = min(cap, base * 2^retry)
-retry_at = now + delay
-# 例：1s → 5s → 30s → 5min
-```
-
-### 3. 参数建议
-
-
-| 任务类型           | lease | heartbeat | Watchdog 周期 |
-| -------------- | ----- | --------- | ----------- |
-| 短任务（<10s）      | 30s   | 不需要       | 5～10s       |
-| 长任务（分钟级）       | 60s   | 每 15s     | 5～10s       |
-
-
-### 4. 观测指标
-
-- `processing` 集合大小（积压的执行中任务）
-- `lease_expired_reclaim_total`（回收次数）
-- ready 队列延迟（`now - min_score`）
-- deadletter 增速
-- 业务侧重复执行率（幂等命中率）
-
----
-
-## 八、最小生产架构
+### 3.4 最小生产架构
 
 ```mermaid
 flowchart TB
@@ -368,40 +168,43 @@ flowchart TB
   WD --> R & DL
 ```
 
-```
-Redis Keys:
-  queue:ready / queue:processing / queue:deadletter / task:meta:{id}
-
+```text
 Worker:  claim → heartbeat → ZREM
-Watchdog: 扫描 lease 过期 → reclaim 或 deadletter
+Watchdog: 扫描 lease 过期 → reclaim 或 deadletter（独立部署，周期 ≤ lease/3）
 ```
 
 ---
 
-## 九、为何很多团队仍用 ZSET 而非 Streams
+## 四、本文与《ZSET 延迟队列全貌》的分工
 
-Redis Streams 已内建 pending list、`XPENDING`、`XCLAIM`、`XAUTOCLAIM`，语义类似 visibility timeout。
-
-许多团队仍选 ZSET，因为学习成本低、Lua 透明、延迟队列与租约表可统一模型。Streams 更适合 Consumer Group 与消息审计场景。
+- 双队列模型、生产者/消费者完整链路、可靠性检查清单、方案选型 → [redis-zset-delay-queue.md](./redis-zset-delay-queue.md)
+- 本文只聚焦 **running 卡死**：问题 → 租约回收 → 两段 Lua
+- **至少一次投递是硬约束**：业务必须幂等（唯一键 / CAS / 幂等 token 表，详见 delay-queue §2.3 铁律 4），否则会出现重复扣款、重复发消息、重复创建资源
 
 ---
 
-## 十、上线检查清单
+## 五、为何很多团队仍用 ZSET 而非 Streams
+
+Redis Streams 已内建 pending list、`XPENDING`、`XCLAIM`、`XAUTOCLAIM`，语义类似 visibility timeout。许多团队仍选 ZSET，因为学习成本低、Lua 透明、延迟队列与租约表可统一模型。Streams 更适合 Consumer Group 与消息审计场景。
+
+---
+
+## 六、上线检查清单
 
 - [ ] Claim 使用 Lua，ready→processing 原子
 - [ ] 成功路径 `ZREM processing`
 - [ ] Watchdog 独立部署，周期 ≤ lease/3
 - [ ] 长任务配置 heartbeat，lease ≥ 3×heartbeat
 - [ ] 业务幂等（唯一键 / CAS / 幂等表）
-- [ ] retry_count + 指数退避 + deadletter
+- [ ] retry_count + 指数退避 + deadletter（参数见 delay-queue §5.4）
 - [ ] 监控 processing 大小与 reclaim 速率
 - [ ] 压测：kill -9 worker 后任务可恢复
 
 ---
 
-## 十一、总结
+## 七、总结
 
-若 Redis ZSET 队列已出现 **running 永久卡死**，正确做法是 **processing lease + timeout reclaim**。
+若 Redis ZSET 队列出现 **running 永久卡死**，正确做法是 **processing lease + timeout reclaim**：Claim 原子（Lua）、完成 ZREM、Watchdog 独立回收、业务幂等。
 
 ### 延伸阅读（同类机制）
 
@@ -409,7 +212,9 @@ Redis Streams 已内建 pending list、`XPENDING`、`XCLAIM`、`XAUTOCLAIM`，�
 - **AWS SQS**：Visibility Timeout
 - **Temporal**：Activity Heartbeat
 
-### 相关笔记
+---
+
+## 八、相关笔记
 
 - [redis-distributed-lock.md](./redis-distributed-lock.md) — 分布式锁与 Redisson 看门狗（对比本文任务 Lease Watchdog）
 - [redis-zset-delay-queue.md](./redis-zset-delay-queue.md) — ZSET 延迟队列全貌
@@ -417,6 +222,10 @@ Redis Streams 已内建 pending list、`XPENDING`、`XCLAIM`、`XAUTOCLAIM`，�
 
 ---
 
-## 附：与 List 队列的对比（参考）
+## 附录：与 List 队列的对比
 
 部分项目使用 **Redis List + BRPOP**（无 running 状态）：取到即消费，不存在「Hash 里 running 卡死」问题，但也缺少延迟调度、租约可见性。若从 List 演进到 ZSET 延迟/重试队列，可直接采用本文的 **ready + processing + Watchdog** 架构。
+
+---
+
+*— 文档结束 —*

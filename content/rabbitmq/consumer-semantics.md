@@ -4,7 +4,7 @@ title: "RabbitMQ 消费端语义：ACK、Prefetch 与死信"
 
 # RabbitMQ 消费端语义：ACK、Prefetch 与死信
 
-> **版本** 2026-05 · 投递、确认、重试、DLX
+> **版本** 2026-05 · **定位**：投递、确认、重试、DLX
 
 > 消费者如何从 Queue 拿消息、何时 ACK/NACK、Prefetch 限流，以及死信交换机（DLX）处理失败与过期消息。
 

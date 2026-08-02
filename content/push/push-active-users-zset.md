@@ -65,7 +65,7 @@ flowchart LR
 
 **查询**：近 90 天活跃 → `ZRANGEBYSCORE key (now-90d) now`
 
-**与全球 Push 交集**：触发时刻做 `cohort ∩ timezone ∩ sent_log 去重`（[push-global-timezone-delivery.md](../push-global-timezone-delivery.md) §6～§7）。
+**与全球 Push 交集**：触发时刻做 `cohort ∩ timezone ∩ sent_log 去重`（[push-global-timezone-delivery.md](./push-global-timezone-delivery.md) §6～§7）。
 
 ### 3.1 预览 / 暂停 / 进度
 
@@ -77,10 +77,7 @@ flowchart LR
 
 ### 3.2 算力放置
 
-- **重计算**跟数据更新：Kafka 合并、DMP hourly 物化 cohort
-- **轻读取**跟发送 Tick：只扫已物化小桶 + 去重
-
-详见概念篇 §7.1 与 [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md)（ZSET score 语义一致：绝对时间戳）。
+原则：**重计算跟数据更新频率走，轻读取跟发送 Tick 走**（完整说明见 [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) §7.1 与 [redis/redis-zset-delay-queue.md](../redis/redis-zset-delay-queue.md)，ZSET score 语义一致：绝对时间戳）。
 
 ---
 

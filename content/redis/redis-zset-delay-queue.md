@@ -4,7 +4,7 @@ title: "使用 Redis ZSET 实现延迟队列"
 
 # 使用 Redis ZSET 实现延迟队列
 
-> **文档类型：** 技术方案 · **适用：** 后端 / 架构 · **最后更新：** 2026-05  
+> **版本** 2026-05 · **定位**：后端 / 架构 · 技术方案
 
 ---
 
@@ -19,6 +19,7 @@ title: "使用 Redis ZSET 实现延迟队列"
 7. 踩坑与注意事项
 8. 方案选型
 9. 参考链接
+10. 相关笔记
 
 ---
 
@@ -115,8 +116,6 @@ flowchart TB
 
 
 
-**流程图：整体架构与双队列分工**
-
 ```text
 生产者 ──ZADD──► delay_queue ──抢任务──► 消费者 Pod
                       ▲                      │
@@ -154,9 +153,6 @@ sequenceDiagram
 
 
 
-**流程图：生产者投递、取消与改期**
-
-
 | 操作  | 命令                                           |
 | --- | -------------------------------------------- |
 | 投递  | `ZADD delay_queue <execute_at_ms> <task_id>` |
@@ -190,8 +186,6 @@ flowchart TD
 ```
 
 
-
-**流程图：单 Pod 轮询消费**
 
 ```text
 loop:
@@ -227,8 +221,6 @@ flowchart TD
 
 
 
-**流程图：多 Pod + ZREM 乐观锁**
-
 **原理：** `ZREM` 原子，返回值 `1` 表示抢到任务，`0` 表示已被其他 Pod 删除。
 
 ```text
@@ -240,12 +232,12 @@ for id in tasks:
 ```
 
 
-| 对比 Lua 批量抢 | ZREM 乐观锁 |
-| ---------- | -------- |
-| 实现         | 需维护脚本    |
-| 去重         | ✅        |
-| RTT        | 通常 1 次   |
-| 空转         | 低        |
+| 对比维度 | Lua 批量抢 | ZREM 乐观锁 |
+| -------- | ---------- | --------- |
+| 实现     | 需维护脚本   | 原生命令组合 |
+| 去重     | ✅（原子）   | ✅（ZREM 返回 1 判定） |
+| RTT     | 1 次       | 2 次（range + rem） |
+| 空转     | 低         | 中（多轮轮询） |
 
 
 **结论：** 只为互斥、QPS 可接受时，**ZREM 足够**；极高 QPS 或要一条命令完成 delay→processing 再用 Lua。
@@ -291,9 +283,6 @@ flowchart TD
   C --> End
 ```
 
-
-
-**流程图：租约过期与 Reaper 重投**
 
 
 | 参数            | 建议                                                           |
@@ -398,8 +387,6 @@ flowchart TD
 
 
 
-**流程图：延迟队列技术选型决策树**
-
 **快速结论：**
 
 
@@ -414,15 +401,7 @@ flowchart TD
 
 ### 8.3 分项要点
 
-**Redis ZSET** — 轻、快、任意延迟；需自研可靠性，内存随积压涨。
-
-**RabbitMQ** — `x-delayed-message` 适合天级内延迟；海量在途需压测。TTL+DLX 更偏传统可靠延迟。
-
-**Kafka** — 无一等公民延迟消息，常用分桶/外部调度。
-
-**RocketMQ** — 4.x 固定 18 档延迟；5.x 时间轮支持任意秒级。
-
-**数据库** — 与业务同事务；轮询有 DB 压力，适合量不大且要强一致。
+各方案分项说明（Redis ZSET / RabbitMQ / Kafka / RocketMQ / 数据库）已归口 [messaging/README.md](../messaging/README.md)「延迟队列方案要点」，本文只保留摘要对比与决策树。
 
 ---
 
@@ -454,11 +433,11 @@ flowchart TD
 
 ---
 
-## 相关笔记
+## 10. 相关笔记
 
 - [redis-distributed-lock.md](./redis-distributed-lock.md) — 分布式锁与看门狗（与队列 Lease Watchdog 对比）
 - [redis-zset-running-recovery.md](./redis-zset-running-recovery.md) — processing 租约与 Watchdog
-- [push-global-timezone-delivery.md](../push-global-timezone-delivery.md) — 全球化 Push 概念（调度与延迟队列场景）
+- [push/push-global-timezone-delivery.md](../push/push-global-timezone-delivery.md) — 全球化 Push 概念（调度与延迟队列场景）
 - [rabbitmq/delay-and-priority.md](../rabbitmq/delay-and-priority.md) — TTL+DLX 延迟拓扑对比
 - [messaging/README.md](../messaging/README.md) — Redis / RabbitMQ / Kafka 选型总览
 

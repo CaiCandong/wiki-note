@@ -4,7 +4,7 @@ title: "RabbitMQ 核心概念"
 
 # RabbitMQ 核心概念
 
-> **版本** 2026-05 · 适用于架构设计、技术评审与实现参考
+> **版本** 2026-05 · **定位**：架构设计、技术评审与实现参考
 
 > Broker、Connection、Channel、Virtual Host、Exchange、Queue、Binding 与消息在 AMQP 模型中的流转。
 
@@ -182,16 +182,7 @@ Exchange "orders" --[binding key: created]--> Queue "order.created"
 | unacked | 已投递给消费者，等待 ACK |
 | 无消费者 | 消息堆积在 ready（受 max-length 等限制） |
 
-### 4.5 典型业务
-
-- 订单 Exchange `order.topic`，Routing Key `order.created` → 库存队列
-- 同一事件 fanout 到审计、搜索索引、通知三个队列
-
----
-
-## 五、Message 与投递语义预览
-
-### 5.1 Message 结构
+### 4.5 Message 结构
 
 | 部分 | 内容 |
 | ---- | ---- |
@@ -201,19 +192,14 @@ Exchange "orders" --[binding key: created]--> Queue "order.created"
 
 **delivery_mode**：`1` 非持久化，`2` 持久化（需队列 durable + 消息 persistent 才落盘）。
 
-### 5.2 与系列其他篇的关系
+### 4.6 典型业务
 
-| 主题 | 文档 |
-| ---- | ---- |
-| Exchange 类型详解 | [exchanges-routing.md](./exchanges-routing.md) |
-| 生产者可靠投递 | [reliable-publishing.md](./reliable-publishing.md) |
-| 消费 ACK / DLX | [consumer-semantics.md](./consumer-semantics.md) |
-| TTL / 延迟 | [delay-and-priority.md](./delay-and-priority.md) |
-| 集群 HA | [cluster-ha.md](./cluster-ha.md) |
+- 订单 Exchange `order.topic`，Routing Key `order.created` → 库存队列
+- 同一事件 fanout 到审计、搜索索引、通知三个队列
 
 ---
 
-## 六、生产实践
+## 五、生产实践
 
 ### 6.1 声明与发布分离
 
@@ -241,9 +227,9 @@ Exchange "orders" --[binding key: created]--> Queue "order.created"
 
 ---
 
-## 七、附录
+## 六、附录
 
-### 7.1 术语表
+### 6.1 术语表
 
 | 术语 | 说明 |
 | ---- | ---- |
@@ -252,7 +238,17 @@ Exchange "orders" --[binding key: created]--> Queue "order.created"
 | Consumer Tag | `basicConsume` 时客户端标识 |
 | Prefetch | 单消费者未 ACK 消息上限，见消费篇 |
 
-### 7.2 参考
+### 6.2 与系列其他篇的关系
+
+| 主题 | 文档 |
+| ---- | ---- |
+| Exchange 类型详解 | [exchanges-routing.md](./exchanges-routing.md) |
+| 生产者可靠投递 | [reliable-publishing.md](./reliable-publishing.md) |
+| 消费 ACK / DLX | [consumer-semantics.md](./consumer-semantics.md) |
+| TTL / 延迟 | [delay-and-priority.md](./delay-and-priority.md) |
+| 集群 HA | [cluster-ha.md](./cluster-ha.md) |
+
+### 6.3 参考
 
 - [RabbitMQ Documentation — AMQP 0-9-1 Model](https://www.rabbitmq.com/tutorials/amqp-concepts.html)
 - [RabbitMQ — Connections and Channels](https://www.rabbitmq.com/docs/connections)

@@ -4,7 +4,7 @@ title: "Elasticsearch 多语言搜索技术指南"
 
 # Elasticsearch 多语言搜索技术指南
 
-> **版本** 2026-05 · 适用于架构设计、技术评审与 ES 实现参考
+> **版本** 2026-05 · **定位**：架构设计、技术评审与 ES 实现参考
 
 > 指定语言下的 Elasticsearch 数据模型、索引拆分、查询分层与高亮对齐；以短剧「标题 + 标签」搜索为业务锚点。
 
@@ -370,80 +370,37 @@ POST /dramas_zh/_search
 2. **用 `matched_queries` 做 UI 角标**，与排序层级对应。
 3. **官方限制**：高亮器不完全反映复杂 `bool` 逻辑，复杂场景见 [Highlighting](https://www.elastic.co/guide/en/elasticsearch/reference/current/highlighting.html)。必要时对关键字段试 `plain` highlighter。
 
-### 6.3 与主查询合并的完整示例
+### 6.3 与主查询合并
+
+在 §5.3 的查询体上追加 `highlight` 块（见 6.1）即可，`query` 与 `sort` 完全不变：
 
 ```json
-POST /dramas_zh/_search
-{
-  "query": {
-    "bool": {
-      "filter": [{ "term": { "status": "online" } }],
-      "should": [
-        {
-          "dis_max": {
-            "tie_breaker": 0,
-            "queries": [
-              {
-                "constant_score": {
-                  "filter": {
-                    "term": {
-                      "title.keyword": { "value": "重生之霸总", "_name": "title_exact" }
-                    }
-                  },
-                  "boost": 1000
-                }
-              },
-              {
-                "match_phrase_prefix": {
-                  "title": { "query": "重生之霸总", "_name": "title_prefix" }
-                },
-                "boost": 100
-              },
-              {
-                "match": {
-                  "title": { "query": "重生之霸总", "operator": "and", "_name": "title_token" }
-                },
-                "boost": 10
-              }
-            ]
-          }
-        },
-        {
-          "match": {
-            "tags": { "query": "重生之霸总", "operator": "and", "_name": "tag_match" }
-          },
-          "boost": 3
-        }
-      ],
-      "minimum_should_match": 1
-    }
-  },
-  "highlight": {
-    "fields": {
-      "title": {
-        "number_of_fragments": 0,
-        "highlight_query": {
-          "bool": {
-            "should": [
-              { "term": { "title.keyword": "重生之霸总" } },
-              { "match_phrase_prefix": { "title": "重生之霸总" } },
-              { "match": { "title": { "query": "重生之霸总", "operator": "and" } } }
-            ],
-            "minimum_should_match": 1
-          }
-        }
-      },
-      "tags": {
-        "number_of_fragments": 0,
-        "highlight_query": {
-          "match": { "tags": { "query": "重生之霸总", "operator": "and" } }
+"highlight": {
+  "fields": {
+    "title": {
+      "number_of_fragments": 0,
+      "highlight_query": {
+        "bool": {
+          "should": [
+            { "term": { "title.keyword": "重生之霸总" } },
+            { "match_phrase_prefix": { "title": "重生之霸总" } },
+            { "match": { "title": { "query": "重生 霸总", "operator": "and" } } }
+          ],
+          "minimum_should_match": 1
         }
       }
+    },
+    "tags": {
+      "number_of_fragments": 0,
+      "highlight_query": {
+        "match": { "tags": { "query": "甜宠", "operator": "and" } }
+      }
     }
-  },
-  "sort": [{ "_score": "desc" }, { "play_count": "desc" }]
+  }
 }
 ```
+
+即：**主查询负责召回与排序，`highlight_query` 独立决定高亮语义**，两者解耦。
 
 ---
 
