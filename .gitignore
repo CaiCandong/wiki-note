@@ -31,3 +31,15 @@ Desktop.ini
 *.log
 *.tmp
 .cache/
+
+# Quartz 静态站构建产物
+node_modules/
+public/
+.quartz/
+.quartz-cache/
+private/
+tsconfig.tsbuildinfo
+prof/
+.obsidian/
+.turbo/
+quartz/cli/tui/dist/

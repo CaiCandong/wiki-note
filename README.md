@@ -1,6 +1,6 @@
 # wiki-note
 
-个人技术笔记仓库。正文以中文撰写，本地 `*.md` 为唯一正本，纳入 Git 版本管理。书写规范、目录组织与编辑约定见 [CLAUDE.md](./CLAUDE.md)。
+个人技术笔记仓库。正文以中文撰写，笔记唯一正本为 [content/](./content/) 下的 `*.md`，纳入 Git 版本管理；由 **Quartz** 构建为 GitHub Pages 静态站：**https://caicandong.github.io/wiki-note/**（含全文搜索、关系图谱、反向链接）。书写规范见 [CLAUDE.md](./CLAUDE.md)。
 
 ---
 
@@ -8,8 +8,16 @@
 
 | 角色 | 建议 |
 | ---- | ---- |
-| **读者** | 直接打开下表对应 `.md` 阅读；GitHub 渲染 Markdown 与 Mermaid |
-| **作者** | 直接编辑 `.md` 后提交 Git；新增 / 删除 / 移动笔记后同步更新本文档目录与对应系列 `README.md` |
+| **读者（网页）** | 访问 https://caicandong.github.io/wiki-note/，支持全文搜索、Mermaid 渲染、反向链接与图谱 |
+| **读者（源码）** | 浏览 [content/](./content/) 下 `.md`，GitHub 原生渲染 Markdown 与 Mermaid |
+| **作者** | 编辑 [content/](./content/) 下 `.md`（需带 `title` front matter）→ 提交推送 → Actions 自动构建部署 |
+
+本地预览与构建：
+
+```bash
+npx quartz build --serve   # 本地预览 http://localhost:8080
+npx quartz build           # 构建产物到 public/（已 gitignore）
+```
 
 ---
 
@@ -54,15 +62,15 @@ flowchart TB
 
 | 主题域 | 本地入口 | 说明 |
 | ------ | -------- | ---- |
-| 缓存 | [cache-strategies.md](./cache-strategies.md) | Cache-Aside 等读写策略 |
-| 限流 | [rate-limit-leaky-bucket.md](./rate-limit-leaky-bucket.md) | 漏桶 / 令牌桶原理与 Go 实现 |
-| 消息 / 队列 / 延迟 | [messaging/README.md](./messaging/README.md) | Redis vs RabbitMQ vs Kafka 选型与学习路径 |
-| Redis 实践 | [redis/README.md](./redis/README.md) | 分布式锁、ZSET 延迟队列、租约恢复 |
-| RabbitMQ | [rabbitmq/README.md](./rabbitmq/README.md) | AMQP 全系列（6 篇） |
-| Elasticsearch | [elasticsearch/README.md](./elasticsearch/README.md) | 高亮、多语言搜索 |
-| Feed 流 | [feed-stream-push-pull.md](./feed-stream-push-pull.md) | 推拉模式、Fan-out、Inbox/Outbox |
-| Push | [push/README.md](./push/README.md) | 入门系列 7 篇 + [全球化概念](./push-global-timezone-delivery.md) |
-| AI 工具 | [ai-tools/README.md](./ai-tools/README.md) | Agent 代码理解、IDE 插件选型 |
+| 缓存 | [content/cache-strategies.md](./content/cache-strategies.md) | Cache-Aside 等读写策略 |
+| 限流 | [content/rate-limit-leaky-bucket.md](./content/rate-limit-leaky-bucket.md) | 漏桶 / 令牌桶原理与 Go 实现 |
+| 消息 / 队列 / 延迟 | [content/messaging/README.md](./content/messaging/README.md) | Redis vs RabbitMQ vs Kafka 选型与学习路径 |
+| Redis 实践 | [content/redis/README.md](./content/redis/README.md) | 分布式锁、ZSET 延迟队列、租约恢复 |
+| RabbitMQ | [content/rabbitmq/README.md](./content/rabbitmq/README.md) | AMQP 全系列（6 篇） |
+| Elasticsearch | [content/elasticsearch/README.md](./content/elasticsearch/README.md) | 高亮、多语言搜索 |
+| Feed 流 | [content/feed-stream-push-pull.md](./content/feed-stream-push-pull.md) | 推拉模式、Fan-out、Inbox/Outbox |
+| Push | [content/push/README.md](./content/push/README.md) | 入门系列 7 篇 + [全球化概念](./content/push-global-timezone-delivery.md) |
+| AI 工具 | [content/ai-tools/README.md](./content/ai-tools/README.md) | Agent 代码理解、IDE 插件选型 |
 
 ---
 
@@ -75,79 +83,75 @@ flowchart TB
 | **D · Push / 触达** | push-global-timezone-delivery → push 系列 0→6 → redis/redis-zset-delay-queue → rabbitmq/reliable-publishing |
 | **C · 搜索** | elasticsearch/es-highlight → es-multilingual-search |
 
-详细说明见 [messaging/README.md](./messaging/README.md)。
+详细说明见 [content/messaging/README.md](./content/messaging/README.md)。
 
 ---
 
 ## 文档目录
 
-### 根目录单篇
+### 根目录单篇（content/）
 
 | 文件 | 内容 |
 | ---- | ---- |
-| [cache-strategies.md](./cache-strategies.md) | 缓存策略：Cache-Aside / Read-Through / Write-Through 等 |
-| [feed-stream-push-pull.md](./feed-stream-push-pull.md) | Feed 流推拉、Fan-out、Inbox/Outbox |
-| [push-global-timezone-delivery.md](./push-global-timezone-delivery.md) | 全球化 Push 概念介绍 |
-| [rate-limit-leaky-bucket.md](./rate-limit-leaky-bucket.md) | 漏桶 / 令牌桶限流算法与 Go 实现 |
+| [content/cache-strategies.md](./content/cache-strategies.md) | 缓存策略：Cache-Aside / Read-Through / Write-Through 等 |
+| [content/feed-stream-push-pull.md](./content/feed-stream-push-pull.md) | Feed 流推拉、Fan-out、Inbox/Outbox |
+| [content/push-global-timezone-delivery.md](./content/push-global-timezone-delivery.md) | 全球化 Push 概念介绍 |
+| [content/rate-limit-leaky-bucket.md](./content/rate-limit-leaky-bucket.md) | 漏桶 / 令牌桶限流算法与 Go 实现 |
+| [content/index.md](./content/index.md) | 站点首页（与本站主题地图一致） |
 
-### [push/](./push/) — Push 入门系列
+### [content/push/](./content/push/) — Push 入门系列
 
-系列索引与阅读顺序见 [push/README.md](./push/README.md)。
-
-| 文件 | 内容 |
-| ---- | ---- |
-| [push-fundamentals.md](./push/push-fundamentals.md) | 基础概念、Token、V0 最小发送 |
-| [push-campaign-admin.md](./push/push-campaign-admin.md) | Campaign 后台、人群包 |
-| [push-active-users-zset.md](./push/push-active-users-zset.md) | ZSET 活跃集、离线拆包 |
-| [push-mq-fanout-provider.md](./push/push-mq-fanout-provider.md) | MQ 扇出、Provider、深链 |
-| [push-multi-vendor-token.md](./push/push-multi-vendor-token.md) | Token 服务、多厂商路由 |
-| [push-ab-monitor.md](./push/push-ab-monitor.md) | AB、监控、防打扰 |
-| [push-link-governance.md](./push/push-link-governance.md) | 链路治理、优先级、故障转移 |
-
-### [elasticsearch/](./elasticsearch/) — Elasticsearch 系列
+系列索引与阅读顺序见 [content/push/README.md](./content/push/README.md)。
 
 | 文件 | 内容 |
 | ---- | ---- |
-| [es-highlight.md](./elasticsearch/es-highlight.md) | Highlight 原理与生产实践 |
-| [es-multilingual-search.md](./elasticsearch/es-multilingual-search.md) | 多语言索引、分层查询、高亮对齐 |
+| [content/push/push-fundamentals.md](./content/push/push-fundamentals.md) | 基础概念、Token、V0 最小发送 |
+| [content/push/push-campaign-admin.md](./content/push/push-campaign-admin.md) | Campaign 后台、人群包 |
+| [content/push/push-active-users-zset.md](./content/push/push-active-users-zset.md) | ZSET 活跃集、离线拆包 |
+| [content/push/push-mq-fanout-provider.md](./content/push/push-mq-fanout-provider.md) | MQ 扇出、Provider、深链 |
+| [content/push/push-multi-vendor-token.md](./content/push/push-multi-vendor-token.md) | Token 服务、多厂商路由 |
+| [content/push/push-ab-monitor.md](./content/push/push-ab-monitor.md) | AB、监控、防打扰 |
+| [content/push/push-link-governance.md](./content/push/push-link-governance.md) | 链路治理、优先级、故障转移 |
 
-### [redis/](./redis/) — Redis 实践系列
-
-| 文件 | 内容 |
-| ---- | ---- |
-| [redis-distributed-lock.md](./redis/redis-distributed-lock.md) | SETNX、单实例锁、Redlock、看门狗 |
-| [redis-zset-delay-queue.md](./redis/redis-zset-delay-queue.md) | ZSET 延迟队列、Reaper、选型 |
-| [redis-zset-running-recovery.md](./redis/redis-zset-running-recovery.md) | Running 卡死、Lease、Watchdog |
-
-### [rabbitmq/](./rabbitmq/) — RabbitMQ 系列
-
-系列索引与阅读顺序见 [rabbitmq/README.md](./rabbitmq/README.md)。
+### [content/elasticsearch/](./content/elasticsearch/) — Elasticsearch 系列
 
 | 文件 | 内容 |
 | ---- | ---- |
-| [core-concepts.md](./rabbitmq/core-concepts.md) | AMQP 模型、Exchange、Queue |
-| [exchanges-routing.md](./rabbitmq/exchanges-routing.md) | Exchange 类型与 Routing Key |
-| [reliable-publishing.md](./rabbitmq/reliable-publishing.md) | Confirm、持久化、Outbox |
-| [consumer-semantics.md](./rabbitmq/consumer-semantics.md) | ACK、Prefetch、DLX、幂等 |
-| [delay-and-priority.md](./rabbitmq/delay-and-priority.md) | TTL+DLX 延迟、优先级 |
-| [cluster-ha.md](./rabbitmq/cluster-ha.md) | 集群、Quorum Queue |
+| [content/elasticsearch/es-highlight.md](./content/elasticsearch/es-highlight.md) | Highlight 原理与生产实践 |
+| [content/elasticsearch/es-multilingual-search.md](./content/elasticsearch/es-multilingual-search.md) | 多语言索引、分层查询、高亮对齐 |
 
-### [ai-tools/](./ai-tools/) — AI 工具系列
-
-系列索引与阅读顺序见 [ai-tools/README.md](./ai-tools/README.md)。
+### [content/redis/](./content/redis/) — Redis 实践系列
 
 | 文件 | 内容 |
 | ---- | ---- |
-| [agent-code-intelligence-comparison.md](./ai-tools/agent-code-intelligence-comparison.md) | Cursor Index / Claude Code / CodeGraph / LSP 对比与集成 |
+| [content/redis/redis-distributed-lock.md](./content/redis/redis-distributed-lock.md) | SETNX、单实例锁、Redlock、看门狗 |
+| [content/redis/redis-zset-delay-queue.md](./content/redis/redis-zset-delay-queue.md) | ZSET 延迟队列、Reaper、选型 |
+| [content/redis/redis-zset-running-recovery.md](./content/redis/redis-zset-running-recovery.md) | Running 卡死、Lease、Watchdog |
 
-### 仓库工具（非笔记正文）
+### [content/rabbitmq/](./content/rabbitmq/) — RabbitMQ 系列
 
-| 路径 | 用途 |
+系列索引与阅读顺序见 [content/rabbitmq/README.md](./content/rabbitmq/README.md)。
+
+| 文件 | 内容 |
 | ---- | ---- |
-| [messaging/README.md](./messaging/README.md) | 消息/队列选型与学习路径（本地索引） |
+| [content/rabbitmq/core-concepts.md](./content/rabbitmq/core-concepts.md) | AMQP 模型、Exchange、Queue |
+| [content/rabbitmq/exchanges-routing.md](./content/rabbitmq/exchanges-routing.md) | Exchange 类型与 Routing Key |
+| [content/rabbitmq/reliable-publishing.md](./content/rabbitmq/reliable-publishing.md) | Confirm、持久化、Outbox |
+| [content/rabbitmq/consumer-semantics.md](./content/rabbitmq/consumer-semantics.md) | ACK、Prefetch、DLX、幂等 |
+| [content/rabbitmq/delay-and-priority.md](./content/rabbitmq/delay-and-priority.md) | TTL+DLX 延迟、优先级 |
+| [content/rabbitmq/cluster-ha.md](./content/rabbitmq/cluster-ha.md) | 集群、Quorum Queue |
+
+### [content/ai-tools/](./content/ai-tools/) — AI 工具系列
+
+系列索引与阅读顺序见 [content/ai-tools/README.md](./content/ai-tools/README.md)。
+
+| 文件 | 内容 |
+| ---- | ---- |
+| [content/ai-tools/agent-code-intelligence-comparison.md](./content/ai-tools/agent-code-intelligence-comparison.md) | Cursor Index / Claude Code / CodeGraph / LSP 对比与集成 |
 
 ---
 
 ## 维护
 
-新增 / 删除 / 移动笔记后，同步更新本文档目录与对应系列 `README.md`；书写规范见 [CLAUDE.md](./CLAUDE.md)。
+- **新增 / 删除 / 移动笔记**：同步更新本文档目录、对应系列 `README.md` 与 [content/index.md](./content/index.md)；书写规范见 [CLAUDE.md](./CLAUDE.md)
+- **站点部署**：推送 `main` 后 GitHub Actions 自动构建发布到 https://caicandong.github.io/wiki-note/（首次需在仓库 Settings → Pages → Source 选择 **GitHub Actions**）
