@@ -32,11 +32,13 @@ npx quartz build           # 构建产物到 public/（已 gitignore）
 | RabbitMQ | [content/rabbitmq/README.md](./content/rabbitmq/README.md) |
 | Elasticsearch | [content/elasticsearch/README.md](./content/elasticsearch/README.md) |
 | AI 工具 | [content/ai-tools/README.md](./content/ai-tools/README.md) |
+| 示例代码（可运行 Go 实现） | [code/leaky-bucket/](./code/leaky-bucket/) — 漏桶限流全实现 + 测试 |
 
 ---
 
 ## 维护
 
 - **导航分工**：主题地图与学习路径归 [content/index.md](./content/index.md)，选型归 [content/messaging/README.md](./content/messaging/README.md)，本文档只做落地页与系列入口
+- **示例代码**：`code/leaky-bucket/` 为笔记配套的可运行 Go 实现（独立 go module），改动需 `go test ./...` 通过，不入 Quartz 构建
 - **新增 / 删除 / 移动笔记**：同步更新对应系列 `README.md` 与 [content/index.md](./content/index.md)；书写规范见 [CLAUDE.md](./CLAUDE.md)
 - **站点部署**：推送 `main` 后 GitHub Actions 自动构建发布到 https://caicandong.github.io/wiki-note/（首次需在仓库 Settings → Pages → Source 选择 **GitHub Actions**）

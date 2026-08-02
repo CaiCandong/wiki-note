@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `content/` | 全部笔记（根目录单篇 + `redis/`、`rabbitmq/`、`push/`、`elasticsearch/`、`ai-tools/`、`messaging/` 系列） |
 | `content/index.md` | 站点首页（主题地图 + 主题域导航） |
 | `README.md`（根） | GitHub 仓库落地页（链接指向 `content/`） |
+| `code/leaky-bucket/` | 笔记配套可运行示例（漏桶限流 Go 实现 + 测试），独立 go module，不入 Quartz 构建 |
 | `quartz.config.yaml` | 站点配置（标题、baseUrl、插件开关） |
 | `quartz/`、`components/`、`plugins/`、`layouts/`、`static/` | Quartz 生成器源码（勿手动修改） |
 
@@ -58,5 +59,6 @@ title: "漏桶算法与令牌桶对比（Go 实现）"
 ## 编辑注意
 
 - 不要引入其他构建工具、Lint、文档站脚手架（Quartz 已就位，勿叠加）
+- `code/` 下 Go 示例为独立 module，改动需 `go test ./...` 与 `golangci-lint run`（brew 安装）通过；仅作笔记验证，勿接入 Quartz 构建
 - 新增 / 删除 / 移动笔记后同步更新根 `README.md`、系列 `README.md`、`content/index.md`
 - 提交前检查：`npx quartz build` 无构建错误；`public/`、`node_modules/`、`.quartz/` 不入库（已 gitignore）
