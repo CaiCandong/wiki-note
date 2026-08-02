@@ -25,7 +25,7 @@
 
 ## 流程图总览
 
-下图展示 **ready / processing / deadletter** 三队列与 Worker、Watchdog 的关系（详见各章节画板）。
+下图展示 **ready / processing / deadletter** 三队列与 Worker、Watchdog 的关系（详见各章节流程图）。
 
 ```mermaid
 flowchart TB

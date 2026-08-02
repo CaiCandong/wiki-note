@@ -7,8 +7,8 @@
 
 ## 文档列表
 
-| 文档 | 说明 | 原文 |
-| ---- | ---- | -------- |
-| AI 编码 Agent 代码理解方案对比 | Cursor Index / Claude Code / CodeGraph / LSP 对比与集成 |  |
+| 文档 | 说明 |
+| ---- | ---- |
+| AI 编码 Agent 代码理解方案对比 | Cursor Index / Claude Code / CodeGraph / LSP 对比与集成 |
 
 本地系列索引见仓库 `ai-tools/README.md`。
