@@ -3,6 +3,7 @@
 .AppleDouble
 .LSOverride
 ._*
+Icon?
 
 # Windows
 Thumbs.db
@@ -15,6 +16,7 @@ Desktop.ini
 *.swo
 .idea/
 .vscode/
+*.iml
 
 # Local agent / IDE tooling (not part of notes)
 .cursor/
@@ -25,11 +27,11 @@ Desktop.ini
 .env
 .env.*
 !.env.example
-.kjlconfig.json
 
-# Temp / logs
+# Temp / logs / packages
 *.log
 *.tmp
+*.tgz
 .cache/
 
 # Quartz 静态站构建产物
@@ -38,7 +40,7 @@ public/
 .quartz/
 .quartz-cache/
 private/
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 prof/
 .obsidian/
 .turbo/
