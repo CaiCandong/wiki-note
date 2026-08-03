@@ -28,6 +28,7 @@ npx quartz build           # 构建产物到 public/（已 gitignore）
 | 主题地图 · 学习路径 · 根目录单篇 | [content/index.md](./content/index.md)（站点首页） |
 | 消息 / 队列 / 延迟选型 | [content/messaging/README.md](./content/messaging/README.md) |
 | Push | [content/push/README.md](./content/push/README.md) |
+| 广告投放 | [content/advertising/README.md](./content/advertising/README.md) |
 | Redis 实践 | [content/redis/README.md](./content/redis/README.md) |
 | RabbitMQ | [content/rabbitmq/README.md](./content/rabbitmq/README.md) |
 | Elasticsearch | [content/elasticsearch/README.md](./content/elasticsearch/README.md) |

@@ -1,9 +1,11 @@
 ---
 title: wiki-note 技术笔记
-description: 个人技术笔记：缓存、消息队列、Redis、Elasticsearch、Push 与限流
+description: 个人技术笔记：缓存、消息队列、Redis、Elasticsearch、Push、限流与广告投放
 ---
 
-个人技术笔记仓库。正文以中文撰写，覆盖缓存策略、消息队列、Redis 实践、Elasticsearch、Feed 流、Push 系统与限流算法等主题。
+# wiki-note 技术笔记
+
+个人技术笔记仓库。正文以中文撰写，覆盖缓存策略、消息队列、Redis 实践、Elasticsearch、Feed 流、Push 系统、限流算法与广告投放等主题。
 
 ## 主题地图
 
@@ -25,6 +27,7 @@ flowchart TB
         FEED[feed-stream-push-pull]
         PUSH_G[push-global-timezone-delivery]
         PUSH_S[push 系列]
+        AD[advertising 系列]
     end
     subgraph ai["AI 工具"]
         AIT[ai-tools 系列]
@@ -42,6 +45,7 @@ flowchart TB
     REDIS --> PUSH_G
     REDIS --> PUSH_S
     ES --> FEED
+    FEED --> AD
 ```
 
 ## 主题域
@@ -55,6 +59,7 @@ flowchart TB
 | RabbitMQ | [rabbitmq/README.md](./rabbitmq/README.md) | AMQP 全系列（6 篇） |
 | Elasticsearch | [elasticsearch/README.md](./elasticsearch/README.md) | 高亮、多语言搜索 |
 | Feed 流 | [feed-stream-push-pull.md](./feed-stream-push-pull.md) | 推拉模式、Fan-out、Inbox/Outbox |
+| 广告投放 | [advertising/README.md](./advertising/README.md) | 程序化广告生态、计费出价、指标与冷启动 |
 | Push | [push/README.md](./push/README.md) | 全球化概念篇 + 入门系列 0→6（共 8 篇） |
 | AI 工具 | [ai-tools/README.md](./ai-tools/README.md) | Agent 代码理解、IDE 插件选型 |
 
